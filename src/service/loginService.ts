@@ -19,16 +19,4 @@ export class LoginService {
         
         return permissoesLogin;
     }
-
-    gerarToken(permissoesLogin: PermissoesLogin): string {
-        const token = jwt.sign(
-            {
-                permissoesLogin
-            },
-            process.env.JWT_SECRET_KEY || "Wzc123A@MaRG!tyv99z@c",
-            { expiresIn: '1h' }
-        );
-
-        return token;
-    }
 }

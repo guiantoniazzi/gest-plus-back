@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { LoginService } from "../service/loginService";
 import { Login } from "../model/login";
+import { TokenService } from "../service/tokenService";
 
 /**
  * @swagger
@@ -12,9 +13,11 @@ import { Login } from "../model/login";
 export default class LoginController {
   public router = Router();
   private loginService: LoginService;
+  private tokenService: TokenService;
 
   constructor() {
     this.loginService = new LoginService();
+    this.tokenService = new TokenService();
   }
 
 
@@ -59,7 +62,7 @@ export default class LoginController {
         var permissoesLogin = await this.loginService.validarCredenciais(login);
 
 
-        return res.status(200).cookie("token", this.loginService.gerarToken(permissoesLogin), {
+        return res.status(200).cookie("token", this.tokenService.gerarToken(permissoesLogin), {
           httpOnly: true,
           // secure: true,
           sameSite: 'strict',

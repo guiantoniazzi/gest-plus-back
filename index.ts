@@ -1,11 +1,23 @@
 import express from 'express';
 import { setupSwagger } from './src/swagger/swagger';
-import routes from './src/controller/health';
+import health from './src/controller/health';
+import LoginController from './src/controller/loginController';
 
+const cors = require('cors');
 const app = express();
+
+app.use(cors({credentials: true, origin: true}));
+
 app.use(express.json());
 
-app.use(routes);
+const loginController = new LoginController();
+
+loginController.inicializarRotas();
+
+app.use(
+    health, 
+    loginController.router
+);
 
 setupSwagger(app);
 

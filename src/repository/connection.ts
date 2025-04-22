@@ -1,4 +1,5 @@
-var mysql = require('mysql2/promise');
+import mysql from 'mysql2/promise';
+import { Sequelize } from 'sequelize';
 
 var con = mysql.createPool({
     host: 'localhost',
@@ -7,4 +8,6 @@ var con = mysql.createPool({
     database: 'DB_GEST_MAIS'
 });
 
-export default con;
+const conSequelize = new Sequelize('DB_GEST_MAIS', 'root', '', {dialect: 'mysql', host: 'localhost'});
+
+export { con, conSequelize };

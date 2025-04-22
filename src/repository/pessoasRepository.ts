@@ -1,11 +1,15 @@
-import { conSequelize } from "./connection";
-import { QueryTypes } from "sequelize";
+import Pessoas from "../model/pessoas";
 
 export class PessoasRepository {
-    constructor() {
-    }
+	constructor() {}
 
-    getAll() {
-        return conSequelize.query("SELECT * FROM pessoas", { type: QueryTypes.SELECT });
-    }
+	async getAll() {
+		try {
+			const pessoas = await Pessoas.findAll({ raw: true });
+			return pessoas;
+		} catch (error) {
+			console.error("Erro ao buscar pessoas:", error);
+			throw error;
+		}
+	}
 }

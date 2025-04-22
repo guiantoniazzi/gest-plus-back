@@ -23,7 +23,7 @@ export default class PessoasController {
 
       /**
        * @swagger
-       * /pessoas:
+       * /getAll:
        *   get:
        *     summary: Retorna todas as pessoas
        *     description: Retorna uma lista de todas as pessoas cadastradas no sistema.

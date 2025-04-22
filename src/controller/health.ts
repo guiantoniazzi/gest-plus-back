@@ -21,6 +21,11 @@ const router = Router();
  *         description: API rodando.
  */
 router.get("/health", (req: Request, res: Response) => {
+    let a = 1;
+
+    a = 2;
+
+    console.log(a)
     res.send('Rodando!');
 });
 

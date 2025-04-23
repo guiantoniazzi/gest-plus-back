@@ -41,7 +41,7 @@ export default class PessoasController {
 							return res.status(401).json({ message: "Token não fornecido" });
 						}
 						const tokenService = new TokenService();
-						const isValid = tokenService.validarToken(token);
+						const isValid = tokenService.validarToken(token, 0);
 						if (!isValid) {
 							return res.status(401).json({ message: "Token inválido" });
 						}

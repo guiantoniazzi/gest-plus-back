@@ -3,6 +3,7 @@ import { LoginService } from "../service/loginService";
 import { Login } from "../model/login";
 import { PerfisAcessoService } from "../service/perfisAcessoService";
 import { TokenService } from "../service/tokenService";
+import { Funcionalidade } from "../enums/funcionalidade";
 
 /**
  * @swagger
@@ -41,7 +42,8 @@ export default class PerfisAcessoController {
 							return res.status(401).json({ message: "Token não fornecido" });
 						}
 						const tokenService = new TokenService();
-						const isValid = tokenService.validarToken(token);
+						const isValid = await tokenService.validarToken(token, Funcionalidade["Consultar perfil de acesso"]);
+						
 						if (!isValid) {
 							return res.status(401).json({ message: "Token inválido" });
 						}

@@ -24,7 +24,7 @@ export default class PerfisAcessoController {
 		try {
 			/**
 			 * @swagger
-			 * /getPerfisComFuncoes:
+			 * /api/perfisAcesso/getPerfisComFuncoes:
 			 *   get:
 			 *     summary: Retorna todas os perfis de acesso com suas respectivas funções
 			 *     description: Retorna uma lista de todos perfis de acesso cadastrados no sistema com suas respectivas funções.

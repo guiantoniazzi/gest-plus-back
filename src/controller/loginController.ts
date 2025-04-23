@@ -23,7 +23,7 @@ export default class LoginController {
 
   /**
    * @swagger
-   * /login:
+   * /api/login/autenticar:
    *   post:
    *     summary: Login do Usuário
    *     description: Autentica usuário retornando token
@@ -48,7 +48,7 @@ export default class LoginController {
 
   inicializarRotas() {
     try {
-      this.router.post("/login", async (req: Request, res: Response): Promise<any> => {
+      this.router.post("/autenticar", async (req: Request, res: Response): Promise<any> => {
         const { usuario, senha } = req.body;
 
         if (!usuario) {

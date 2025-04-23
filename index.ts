@@ -3,6 +3,7 @@ import { setupSwagger } from './src/swagger/swagger';
 import health from './src/controller/health';
 import LoginController from './src/controller/loginController';
 import PessoasController from './src/controller/pessoasController';
+import PerfisAcessoController from './src/controller/perfisAcessoController';
 
 const cors = require('cors');
 const app = express();
@@ -17,10 +18,14 @@ loginController.inicializarRotas();
 const pessoasController = new PessoasController();
 pessoasController.inicializarRotas();
 
+const perfisAcessoController = new PerfisAcessoController();
+perfisAcessoController.inicializarRotas();
+
 app.use(
     health, 
     loginController.router,
-    pessoasController.router
+    pessoasController.router,
+    perfisAcessoController.router
 );
 
 setupSwagger(app);

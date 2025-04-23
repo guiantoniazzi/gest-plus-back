@@ -1,39 +1,39 @@
 import { Router, Request, Response } from "express";
 import { LoginService } from "../service/loginService";
 import { Login } from "../model/login";
-import { PessoasService } from "../service/pessoasService";
+import { PerfisAcessoService } from "../service/perfisAcessoService";
 import { TokenService } from "../service/tokenService";
 
 /**
  * @swagger
  * tags:
- *   name: Pessoas
- *   description: Endpoint de pessoas
+ *   name: PerfisAcesso
+ *   description: Endpoint de perfis de acesso
  */
 
-export default class PessoasController {
+export default class PerfisAcessoController {
 	public router = Router();
-	private pessoasService: PessoasService;
+	private perfisAcessoService: PerfisAcessoService;
 
 	constructor() {
-		this.pessoasService = new PessoasService();
+		this.perfisAcessoService = new PerfisAcessoService();
 	}
 
 	inicializarRotas() {
 		try {
 			/**
 			 * @swagger
-			 * /getAll:
+			 * /getPerfisComFuncoes:
 			 *   get:
-			 *     summary: Retorna todas as pessoas
-			 *     description: Retorna uma lista de todas as pessoas cadastradas no sistema.
-			 *     tags: [Pessoas]
+			 *     summary: Retorna todas os perfis de acesso com suas respectivas funções
+			 *     description: Retorna uma lista de todos perfis de acesso cadastrados no sistema com suas respectivas funções.
+			 *     tags: [PerfisAcesso]
 			 *     responses:
 			 *       200:
-			 *         description: Lista de pessoas.
+			 *         description: Lista de perfis de acesso.
 			 */
 			this.router.get(
-				"/getAll",
+				"/getPerfisComFuncoes",
 				async (req: Request, res: Response): Promise<any> => {
 					try {
 						const token = req.headers.cookie?.split("=")[1];
@@ -45,10 +45,10 @@ export default class PessoasController {
 						if (!isValid) {
 							return res.status(401).json({ message: "Token inválido" });
 						}
-						const pessoas = await this.pessoasService.getAll();
-						return res.status(200).json(pessoas).send();
+						const perfisAcesso = await this.perfisAcessoService.getPerfisComFuncoes();
+						return res.status(200).json(perfisAcesso).send();
 					} catch (error) {
-						return res.status(500).json({ message: "Erro ao buscar pessoas" });
+						return res.status(500).json({ message: "Erro ao buscar perfisAcesso" });
 					}
 				}
 			);

@@ -15,4 +15,13 @@ export class PerfisAcessoService {
             throw error;
         }
     }
+
+    async cadastrarPerfil(perfil: { nomePerfil: string; ativo: boolean }) {
+        try {
+            const novoPerfil = await this.perfisAcessoRepository.cadastrarPerfil(perfil);
+            return novoPerfil;
+        } catch (error) {
+            throw error;
+        }
+    }
 }

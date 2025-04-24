@@ -16,7 +16,6 @@ export default class PerfisAcessoController {
 
     constructor() {
         this.perfisAcessoService = new PerfisAcessoService();
-        this.inicializarRotas();
     }
 
     inicializarRotas() {
@@ -32,7 +31,24 @@ export default class PerfisAcessoController {
              *       200:
              *         description: Lista de perfis de acesso.
              */
-            this.router.get("/getPerfisComFuncoes", this.getPerfisComFuncoes);
+            this.router.get("/getPerfisComFuncoes", async (req: Request, res: Response): Promise<any> => {
+                try {
+                    const token = req.headers.cookie?.split("=")[1];
+                    if (!token) {
+                        return res.status(401).json({ message: "Token não fornecido" });
+                    }
+                    const tokenService = new TokenService();
+                    const isValid = await tokenService.validarToken(token, Funcionalidade["Consultar perfil de acesso"]);
+        
+                    if (!isValid) {
+                        return res.status(401).json({ message: "Token inválido" });
+                    }
+                    const perfisAcesso = await this.perfisAcessoService.getPerfisComFuncoes();
+                    return res.status(200).json(perfisAcesso);
+                } catch (error) {
+                    return res.status(500).json({ message: "Erro ao buscar perfis de acesso" });
+                }
+            });
 
             /**
              * @swagger
@@ -62,46 +78,25 @@ export default class PerfisAcessoController {
              *       500:
              *         description: Erro ao cadastrar perfil de acesso.
              */
-            this.router.post("/cadastrar", this.cadastrarPerfil);
+            this.router.post("/cadastrar", async (req: Request, res: Response): Promise<any> => {
+                try {
+                    const { nomePerfil, ativo } = req.body;
+        
+                    // Validação básica dos dados
+                    if (!nomePerfil || ativo === undefined) {
+                        return res.status(400).json({ message: "Dados inválidos. Verifique os campos enviados." });
+                    }
+        
+                    // Chamar o serviço para cadastrar o perfil
+                    const novoPerfil = await this.perfisAcessoService.cadastrarPerfil({ nomePerfil, ativo });
+                    return res.status(201).json(novoPerfil);
+                } catch (error) {
+                    console.error("Erro ao cadastrar perfil de acesso:", error);
+                    return res.status(500).json({ message: "Erro ao cadastrar perfil de acesso" });
+                }
+            });
         } catch (error) {
             throw error;
-        }
-    }
-
-    private async getPerfisComFuncoes(req: Request, res: Response): Promise<any> {
-        try {
-            const token = req.headers.cookie?.split("=")[1];
-            if (!token) {
-                return res.status(401).json({ message: "Token não fornecido" });
-            }
-            const tokenService = new TokenService();
-            const isValid = await tokenService.validarToken(token, Funcionalidade["Consultar perfil de acesso"]);
-
-            if (!isValid) {
-                return res.status(401).json({ message: "Token inválido" });
-            }
-            const perfisAcesso = await this.perfisAcessoService.getPerfisComFuncoes();
-            return res.status(200).json(perfisAcesso);
-        } catch (error) {
-            return res.status(500).json({ message: "Erro ao buscar perfis de acesso" });
-        }
-    }
-
-    private async cadastrarPerfil(req: Request, res: Response): Promise<any> {
-        try {
-            const { nomePerfil, ativo } = req.body;
-
-            // Validação básica dos dados
-            if (!nomePerfil || ativo === undefined) {
-                return res.status(400).json({ message: "Dados inválidos. Verifique os campos enviados." });
-            }
-
-            // Chamar o serviço para cadastrar o perfil
-            const novoPerfil = await this.perfisAcessoService.cadastrarPerfil({ nomePerfil, ativo });
-            return res.status(201).json(novoPerfil);
-        } catch (error) {
-            console.error("Erro ao cadastrar perfil de acesso:", error);
-            return res.status(500).json({ message: "Erro ao cadastrar perfil de acesso" });
         }
     }
 }

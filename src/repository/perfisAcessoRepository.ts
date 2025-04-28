@@ -22,9 +22,13 @@ export class PerfisAcessoRepository {
         }
     }
 
-    async cadastrarPerfil(perfil: { nomePerfil: string; ativo: boolean }) {
+    async cadastrarPerfil(perfil: { nomePerfil: string; ativo: boolean }, usuInclusao: string) {
         try {
-            const novoPerfil = await PerfisAcesso.create(perfil);
+            const novoPerfil = await PerfisAcesso.create({
+                nomePerfil: perfil.nomePerfil,
+                ativo: perfil.ativo,
+                usuInclusao
+            });
             return novoPerfil;
         } catch (error) {
             console.error("Erro ao cadastrar perfil de acesso:", error);

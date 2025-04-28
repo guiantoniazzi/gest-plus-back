@@ -1,27 +1,49 @@
+import { FuncoesPerfilRepository } from "../repository/funcoesPerfilRepository";
 import { PerfisAcessoRepository } from "../repository/perfisAcessoRepository";
 
 export class PerfisAcessoService {
-    private perfisAcessoRepository: PerfisAcessoRepository;
+	private perfisAcessoRepository: PerfisAcessoRepository;
+	private funcoesPerfilRepository: FuncoesPerfilRepository;
 
-    constructor() {
-        this.perfisAcessoRepository = new PerfisAcessoRepository();
-    }
+	constructor() {
+		this.perfisAcessoRepository = new PerfisAcessoRepository();
+		this.funcoesPerfilRepository = new FuncoesPerfilRepository();
+	}
 
-    async getPerfisComFuncoes() {
-        try {
-            const result = await this.perfisAcessoRepository.getPerfisComFuncoes();
-            return result;
-        } catch (error) {
-            throw error;
-        }
-    }
+	async getPerfisComFuncoes() {
+		try {
+			const result = await this.perfisAcessoRepository.getPerfisComFuncoes();
+			return result;
+		} catch (error) {
+			throw error;
+		}
+	}
 
-    async cadastrarPerfil(perfil: { nomePerfil: string; ativo: boolean }) {
-        try {
-            const novoPerfil = await this.perfisAcessoRepository.cadastrarPerfil(perfil);
-            return novoPerfil;
-        } catch (error) {
-            throw error;
-        }
-    }
+	async cadastrarPerfil(
+		perfil: { nomePerfil: string; ativo: boolean; idsFuncoesSistema: number[] },
+		usuInclusao: string
+	) {
+		const nome = perfil.nomePerfil;
+		const ativo = perfil.ativo;
+		const idsFuncs = perfil.idsFuncoesSistema;
+		try {
+			const novoPerfil = await this.perfisAcessoRepository.cadastrarPerfil(
+				{
+					nomePerfil: nome,
+					ativo,
+				},
+				usuInclusao
+			);
+			if (idsFuncs && idsFuncs.length > 0) {
+				await this.funcoesPerfilRepository.insertFuncoesPerfil(
+					novoPerfil.dataValues.cdPerfil,
+					idsFuncs,
+                    usuInclusao
+				);
+			}
+			return novoPerfil;
+		} catch (error) {
+			throw error;
+		}
+	}
 }

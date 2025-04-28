@@ -16,4 +16,13 @@ export class FuncoesSistemaService {
             throw error;
         }
     }
+
+    async getAllFuncoesActive(): Promise<any[]> {
+        try {
+            return await this.funcoesSistemaRepository.getAllFuncoesActive();
+        } catch (error) {
+            console.error("Erro ao buscar funções do sistema:", error);
+            throw error;
+        }
+    }
 }

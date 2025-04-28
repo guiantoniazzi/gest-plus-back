@@ -19,4 +19,19 @@ export class FuncoesSistemaRepository {
             throw error;
         }
     }
+
+    async getAllFuncoesActive(): Promise<any[]> {
+        try {
+            const funcoes = await FuncoesSistema.findAll({
+                where: {
+                    ativo: 1, // Apenas funções ativas
+                },
+                raw: true, // Retornar os dados como objetos simples
+            });
+            return funcoes;
+        } catch (error) {
+            console.error("Erro ao buscar funções do sistema:", error);
+            throw error;
+        }
+    }
 }

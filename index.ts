@@ -4,6 +4,7 @@ import health from "./src/controller/health";
 import LoginController from "./src/controller/loginController";
 import PessoasController from "./src/controller/pessoasController";
 import PerfisAcessoController from "./src/controller/perfisAcessoController";
+import FuncoesSistemaController from "./src/controller/funcoesSistemaController";
 
 const cors = require("cors");
 const app = express();
@@ -21,11 +22,15 @@ pessoasController.inicializarRotas();
 const perfisAcessoController = new PerfisAcessoController();
 perfisAcessoController.inicializarRotas();
 
+const funcoesSistemaController = new FuncoesSistemaController();
+funcoesSistemaController.inicializarRotas();
+
 app.use(health);
 
 app.use("/api/login", loginController.router);
 app.use("/api/pessoas", pessoasController.router);
 app.use("/api/perfisAcesso", perfisAcessoController.router);
+app.use("/api/funcoesSistema", funcoesSistemaController.router);
 
 setupSwagger(app);
 

@@ -1,51 +1,88 @@
 import FuncoesPerfil from "../model/funcoesPerfil";
+import HistFuncoesPerfil from "../model/histFuncoesPerfil";
 
 export class FuncoesPerfilRepository {
-    constructor() {}
+	constructor() {}
 
-    async insertFuncoesPerfil(cdPerfil: number, idsFuncs: number[], usuInclusao: string) {
-        try {
-            return idsFuncs.forEach(idFunc => {
-                FuncoesPerfil.create({
-                    cdPerfil,
-                    cdFuncao: idFunc,
-                    usuInclusao
-                })
-            });
-        } catch (error) {
-            console.error("Erro ao buscar funções do sistema:", error);
-            throw error;
-        }
-    }
+	async insertFuncoesPerfil(
+		cdPerfil: number,
+		idsFuncs: number[],
+		usuInclusao: string
+	) {
+		try {
+			return idsFuncs.forEach((idFunc) => {
+				FuncoesPerfil.create({
+					cdPerfil,
+					cdFuncao: idFunc,
+					usuInclusao,
+				});
+			});
+		} catch (error) {
+			console.error("Erro ao buscar funções do sistema:", error);
+			throw error;
+		}
+	}
 
-    async deleteFuncoesPerfil(cdPerfil: number, idsFuncs: number[], usuAlteracao: string) {
-        try {
-            return idsFuncs.forEach(idFunc => {
-                FuncoesPerfil.destroy({
-                    where: {
-                        cdPerfil,
-                        cdFuncao: idFunc
-                    },
-                    individualHooks: true,
-                    hooks: true
-                })
-            });
-        } catch (error) {
-            console.error("Erro ao buscar funções do sistema:", error);
-            throw error;
-        }
-    }
+	async alteraFuncoesPerfil(cdPerfil: number, idsFuncs: number[]) {
+		try {
+			const funcsDoPerfil = (await FuncoesPerfil.findAll({
+				attributes: ["cdFuncao"],
+				where: { cdPerfil: cdPerfil },
+				raw: true,
+			})) as any[];
 
-    async getFuncoesPerfil(cdPerfil: number) {
-        try {
-            const funcoesPerfil = await FuncoesPerfil.findAll({
-                where: { cdPerfil },
-                attributes: ["cdFuncao"],
-            });
-            return funcoesPerfil.map((funcao) => funcao.get({ plain: true })); // Retorna os dados como objetos simples
-        } catch (error) {
-            console.error("Erro ao buscar funções do sistema:", error);
-            throw error;
-        }
-    }
+			const idsFuncsExistentes = funcsDoPerfil.map((func) => func.cdFuncao);
+			const funcsParaRemover = idsFuncsExistentes.filter(
+				(cdFuncao) => !idsFuncs.includes(cdFuncao)
+			);
+			const funcsParaAdicionar = idsFuncs.filter(
+				(cdFuncao) => !idsFuncsExistentes.includes(cdFuncao)
+			);
+
+			await this.salvarHistoricoFuncoesPerfil(cdPerfil, funcsParaRemover);
+
+			if (funcsParaRemover.length > 0) {
+				await FuncoesPerfil.destroy({
+					where: {
+						cdPerfil: cdPerfil,
+						cdFuncao: funcsParaRemover,
+					},
+				});
+				console.log(`Funções removidas: ${funcsParaRemover}`);
+			}
+
+			if (funcsParaAdicionar.length > 0) {
+				const novasFuncoes = funcsParaAdicionar.map((cdFuncao) => ({
+					cdPerfil,
+					cdFuncao,
+					dtHrAlteracao: new Date(),
+				}));
+
+				await FuncoesPerfil.bulkCreate(novasFuncoes);
+				console.log(`Funções adicionadas: ${funcsParaAdicionar}`);
+			}
+		} catch (error) {
+			console.error("Erro ao alterar funções do perfil:", error);
+			throw error;
+		}
+	}
+
+	async salvarHistoricoFuncoesPerfil(
+		cdPerfil: number,
+		funcoesExcluidas: number[]
+	) {
+		try {
+			const historico = [
+				...funcoesExcluidas.map((cdFuncao) => ({
+					cdPerfil,
+					cdFuncao,
+					dtHrAlteracao: new Date(),
+				})),
+			];
+			await HistFuncoesPerfil.bulkCreate(historico);
+		} catch (error) {
+			console.error("Erro ao salvar histórico de funções do perfil:", error);
+			throw error;
+		}
+	}
 }

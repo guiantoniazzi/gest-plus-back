@@ -101,7 +101,7 @@ export default class PerfisAcessoController {
 							return res.status(401).json({ message: "Token não fornecido" });
 						}
 						const tokenService = new TokenService();
-						const isValid = tokenService.validarToken(token, 0);
+						const isValid = tokenService.validarToken(token, Funcionalidade["Gerenciar perfil de acesso"]);
 						if (!isValid) {
 							return res.status(401).json({ message: "Token inválido" });
 						}
@@ -137,13 +137,12 @@ export default class PerfisAcessoController {
 					}
 				}
 			);
-
 			/**
 			 * @swagger
 			 * /api/perfisAcesso/alterar:
 			 *   put:
-			 *     summary: Altera um perfil de acesso existente
-			 *     description: Atualiza os dados de um perfil de acesso existente no sistema.
+			 *     summary: Altera perfil de acesso
+			 *     description: Altera um perfil de acesso do sistema.
 			 *     tags: [PerfisAcesso]
 			 *     requestBody:
 			 *       required: true
@@ -152,7 +151,7 @@ export default class PerfisAcessoController {
 			 *           schema:
 			 *             type: object
 			 *             properties:
-			 *               cdPerfil:
+			 *               idPerfil:
 			 *                 type: number
 			 *                 example: 1
 			 *               nomePerfil:
@@ -167,7 +166,7 @@ export default class PerfisAcessoController {
 			 *                   type: number
 			 *                 example: [1, 2, 3]
 			 *     responses:
-			 *       200:
+			 *       201:
 			 *         description: Perfil de acesso alterado com sucesso.
 			 *       400:
 			 *         description: Dados inválidos.
@@ -183,16 +182,16 @@ export default class PerfisAcessoController {
 							return res.status(401).json({ message: "Token não fornecido" });
 						}
 						const tokenService = new TokenService();
-						const isValid = tokenService.validarToken(token, 0);
+						const isValid = tokenService.validarToken(token, Funcionalidade["Gerenciar perfil de acesso"]);
 						if (!isValid) {
 							return res.status(401).json({ message: "Token inválido" });
 						}
 						const dadosToken = await tokenService.descripToken(token);
-						const { cdPerfil, nomePerfil, ativo, idsFuncoesSistema } = req.body;
+						const { idPerfil, nomePerfil, ativo, idsFuncoesSistema } = req.body;
 
 						// Validação básica dos dados
 						if (
-							cdPerfil === undefined ||
+							!idPerfil ||
 							!nomePerfil ||
 							ativo === undefined ||
 							!Array.isArray(idsFuncoesSistema)
@@ -205,19 +204,19 @@ export default class PerfisAcessoController {
 						// Chamar o serviço para alterar o perfil
 						const perfilAlterado = await this.perfisAcessoService.alterarPerfil(
 							{
-								cdPerfil,
+								idPerfil,
 								nomePerfil,
 								ativo,
 								idsFuncoesSistema,
 							},
 							dadosToken.nome
 						);
-						return res.status(200).json(perfilAlterado);
+						return res.status(201).json(perfilAlterado);
 					} catch (error) {
-						console.error("Erro ao alterar perfil de acesso:", error);
+						console.error("Erro ao cadastrar perfil de acesso:", error);
 						return res
 							.status(500)
-							.json({ message: "Erro ao alterar perfil de acesso" });
+							.json({ message: "Erro ao cadastrar perfil de acesso" });
 					}
 				}
 			);

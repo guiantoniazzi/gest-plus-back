@@ -38,7 +38,7 @@ export class PerfisAcessoService {
 				await this.funcoesPerfilRepository.insertFuncoesPerfil(
 					novoPerfil.dataValues.cdPerfil,
 					idsFuncs,
-                    usuInclusao
+					usuInclusao
 				);
 			}
 			return novoPerfil;
@@ -48,30 +48,52 @@ export class PerfisAcessoService {
 	}
 
 	async alterarPerfil(
-		perfil: { cdPerfil: number; nomePerfil: string; ativo: boolean; idsFuncoesSistema: number[] },
+		perfil: {
+			idPerfil: number;
+			nomePerfil: string;
+			ativo: boolean;
+			idsFuncoesSistema: number[];
+		},
 		usuAlteracao: string
 	) {
-		const cdPerfil = perfil.cdPerfil;
+		const idPerfil = perfil.idPerfil;
 		const nome = perfil.nomePerfil;
 		const ativo = perfil.ativo;
+		const idsFuncs = perfil.idsFuncoesSistema;
+
 		try {
-			const novoPerfil = await this.perfisAcessoRepository.alterarPerfil(
+			const perfilAtual = (await this.perfisAcessoRepository.getPerfilById(
+				idPerfil
+			)) as unknown as { nomePerfil: string; ativo: boolean } | null;
+
+			if (!perfilAtual) {
+				throw new Error("Perfil não encontrado.");
+			}
+
+			await this.perfisAcessoRepository.salvarHistoricoPerfil({
+				cdPerfil: idPerfil,
+				nomePerfil: perfilAtual.nomePerfil,
+				ativo: perfilAtual.ativo,
+				dtHrAlteracao: new Date(),
+			});
+
+			const perfilAlterado = await this.perfisAcessoRepository.alterarPerfil(
 				{
-					cdPerfil,
+					idPerfil,
 					nomePerfil: nome,
 					ativo,
 				},
 				usuAlteracao
 			);
-			const funcoes = await this.funcoesPerfilRepository.getFuncoesPerfil(cdPerfil);
-			if(perfil.idsFuncoesSistema.some(funcao => !funcoes.some(f => f.cdFuncao === funcao))) {
-				await this.funcoesPerfilRepository.insertFuncoesPerfil(cdPerfil, perfil.idsFuncoesSistema.filter(funcao => !funcoes.some(f => f.cdFuncao === funcao)), usuAlteracao);
-			}
-			if(funcoes.some(funcao => !perfil.idsFuncoesSistema.some(f => f === funcao.cdFuncao))) {
-				await this.funcoesPerfilRepository.deleteFuncoesPerfil(cdPerfil, funcoes.filter(funcao => !perfil.idsFuncoesSistema.some(f => f === funcao.cdFuncao)).map(funcao => funcao.cdFuncao), usuAlteracao);
-			}
-			return novoPerfil;
+
+			await this.funcoesPerfilRepository.alteraFuncoesPerfil(
+				idPerfil,
+				idsFuncs
+			);
+
+			return perfilAlterado;
 		} catch (error) {
+			console.error("Erro ao alterar perfil de acesso:", error);
 			throw error;
 		}
 	}

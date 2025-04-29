@@ -137,6 +137,90 @@ export default class PerfisAcessoController {
 					}
 				}
 			);
+
+			/**
+			 * @swagger
+			 * /api/perfisAcesso/alterar:
+			 *   put:
+			 *     summary: Altera um perfil de acesso existente
+			 *     description: Atualiza os dados de um perfil de acesso existente no sistema.
+			 *     tags: [PerfisAcesso]
+			 *     requestBody:
+			 *       required: true
+			 *       content:
+			 *         application/json:
+			 *           schema:
+			 *             type: object
+			 *             properties:
+			 *               cdPerfil:
+			 *                 type: number
+			 *                 example: 1
+			 *               nomePerfil:
+			 *                 type: string
+			 *                 example: "Administrador"
+			 *               ativo:
+			 *                 type: boolean
+			 *                 example: true
+			 *               idsFuncoesSistema:
+			 *                 type: array
+			 *                 items:
+			 *                   type: number
+			 *                 example: [1, 2, 3]
+			 *     responses:
+			 *       200:
+			 *         description: Perfil de acesso alterado com sucesso.
+			 *       400:
+			 *         description: Dados inválidos.
+			 *       500:
+			 *         description: Erro ao alterar perfil de acesso.
+			 */
+			this.router.put(
+				"/alterar",
+				async (req: Request, res: Response): Promise<any> => {
+					try {
+						const token = req.headers.cookie?.split("=")[1];
+						if (!token) {
+							return res.status(401).json({ message: "Token não fornecido" });
+						}
+						const tokenService = new TokenService();
+						const isValid = tokenService.validarToken(token, 0);
+						if (!isValid) {
+							return res.status(401).json({ message: "Token inválido" });
+						}
+						const dadosToken = await tokenService.descripToken(token);
+						const { cdPerfil, nomePerfil, ativo, idsFuncoesSistema } = req.body;
+
+						// Validação básica dos dados
+						if (
+							cdPerfil === undefined ||
+							!nomePerfil ||
+							ativo === undefined ||
+							!Array.isArray(idsFuncoesSistema)
+						) {
+							return res.status(400).json({
+								message: "Dados inválidos. Verifique os campos enviados.",
+							});
+						}
+
+						// Chamar o serviço para alterar o perfil
+						const perfilAlterado = await this.perfisAcessoService.alterarPerfil(
+							{
+								cdPerfil,
+								nomePerfil,
+								ativo,
+								idsFuncoesSistema,
+							},
+							dadosToken.nome
+						);
+						return res.status(200).json(perfilAlterado);
+					} catch (error) {
+						console.error("Erro ao alterar perfil de acesso:", error);
+						return res
+							.status(500)
+							.json({ message: "Erro ao alterar perfil de acesso" });
+					}
+				}
+			);
 		} catch (error) {
 			throw error;
 		}

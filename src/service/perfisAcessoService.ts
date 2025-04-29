@@ -46,4 +46,33 @@ export class PerfisAcessoService {
 			throw error;
 		}
 	}
+
+	async alterarPerfil(
+		perfil: { cdPerfil: number; nomePerfil: string; ativo: boolean; idsFuncoesSistema: number[] },
+		usuAlteracao: string
+	) {
+		const cdPerfil = perfil.cdPerfil;
+		const nome = perfil.nomePerfil;
+		const ativo = perfil.ativo;
+		try {
+			const novoPerfil = await this.perfisAcessoRepository.alterarPerfil(
+				{
+					cdPerfil,
+					nomePerfil: nome,
+					ativo,
+				},
+				usuAlteracao
+			);
+			const funcoes = await this.funcoesPerfilRepository.getFuncoesPerfil(cdPerfil);
+			if(perfil.idsFuncoesSistema.some(funcao => !funcoes.some(f => f.cdFuncao === funcao))) {
+				await this.funcoesPerfilRepository.insertFuncoesPerfil(cdPerfil, perfil.idsFuncoesSistema.filter(funcao => !funcoes.some(f => f.cdFuncao === funcao)), usuAlteracao);
+			}
+			if(funcoes.some(funcao => !perfil.idsFuncoesSistema.some(f => f === funcao.cdFuncao))) {
+				await this.funcoesPerfilRepository.deleteFuncoesPerfil(cdPerfil, funcoes.filter(funcao => !perfil.idsFuncoesSistema.some(f => f === funcao.cdFuncao)).map(funcao => funcao.cdFuncao), usuAlteracao);
+			}
+			return novoPerfil;
+		} catch (error) {
+			throw error;
+		}
+	}
 }

@@ -35,4 +35,23 @@ export class PerfisAcessoRepository {
             throw error;
         }
     }
+
+    async alterarPerfil(perfil: { cdPerfil: number; nomePerfil: string; ativo: boolean }, usuAlteracao: string) {
+        try {
+            const perfilAlterado = await PerfisAcesso.update(
+                {
+                    nomePerfil: perfil.nomePerfil,
+                    ativo: perfil.ativo,
+                    usuAlteracao
+                },
+                {
+                    where: { cdPerfil: perfil.cdPerfil },
+                }
+            );
+            return perfilAlterado;
+        } catch (error) {
+            console.error("Erro ao alterar perfil de acesso:", error);
+            throw error;
+        }
+    }
 }

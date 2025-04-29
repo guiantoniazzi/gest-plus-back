@@ -38,10 +38,41 @@ export class PerfisAcessoService {
 				await this.funcoesPerfilRepository.insertFuncoesPerfil(
 					novoPerfil.dataValues.cdPerfil,
 					idsFuncs,
-                    usuInclusao
+					usuInclusao
 				);
 			}
 			return novoPerfil;
+		} catch (error) {
+			throw error;
+		}
+	}
+	async alterarPerfil(
+		perfil: {
+			idPerfil: number;
+			nomePerfil: string;
+			ativo: boolean;
+			idsFuncoesSistema: number[];
+		},
+		usuAlteracao: string
+	) {
+		const idPerfil = perfil.idPerfil;
+		const nome = perfil.nomePerfil;
+		const ativo = perfil.ativo;
+		const idsFuncs = perfil.idsFuncoesSistema;
+		try {
+			const perfilAlterado = await this.perfisAcessoRepository.alterarPerfil(
+				{
+					idPerfil,
+					nomePerfil: nome,
+					ativo,
+				},
+				usuAlteracao
+			);
+			await this.funcoesPerfilRepository.alteraFuncoesPerfil(
+				idPerfil,
+				idsFuncs
+			);
+			return perfilAlterado;
 		} catch (error) {
 			throw error;
 		}

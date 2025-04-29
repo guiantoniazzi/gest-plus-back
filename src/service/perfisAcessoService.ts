@@ -46,6 +46,7 @@ export class PerfisAcessoService {
 			throw error;
 		}
 	}
+
 	async alterarPerfil(
 		perfil: {
 			idPerfil: number;
@@ -59,7 +60,26 @@ export class PerfisAcessoService {
 		const nome = perfil.nomePerfil;
 		const ativo = perfil.ativo;
 		const idsFuncs = perfil.idsFuncoesSistema;
+
 		try {
+			// Buscar o perfil atual para salvar no histórico
+			const perfilAtual = (await this.perfisAcessoRepository.getPerfilById(
+				idPerfil
+			)) as unknown as { nomePerfil: string; ativo: boolean } | null;
+
+			if (!perfilAtual) {
+				throw new Error("Perfil não encontrado.");
+			}
+
+			// Salvar o histórico do perfil
+			await this.perfisAcessoRepository.salvarHistoricoPerfil({
+				cdPerfil: idPerfil,
+				nomePerfil: perfilAtual.nomePerfil,
+				ativo: perfilAtual.ativo,
+				dtHrAlteracao: new Date(),
+			});
+
+			// Alterar o perfil
 			const perfilAlterado = await this.perfisAcessoRepository.alterarPerfil(
 				{
 					idPerfil,
@@ -68,12 +88,16 @@ export class PerfisAcessoService {
 				},
 				usuAlteracao
 			);
+
+			// Alterar as funções associadas ao perfil
 			await this.funcoesPerfilRepository.alteraFuncoesPerfil(
 				idPerfil,
 				idsFuncs
 			);
+
 			return perfilAlterado;
 		} catch (error) {
+			console.error("Erro ao alterar perfil de acesso:", error);
 			throw error;
 		}
 	}

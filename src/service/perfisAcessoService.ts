@@ -62,7 +62,6 @@ export class PerfisAcessoService {
 		const idsFuncs = perfil.idsFuncoesSistema;
 
 		try {
-			// Buscar o perfil atual para salvar no histórico
 			const perfilAtual = (await this.perfisAcessoRepository.getPerfilById(
 				idPerfil
 			)) as unknown as { nomePerfil: string; ativo: boolean } | null;
@@ -71,7 +70,6 @@ export class PerfisAcessoService {
 				throw new Error("Perfil não encontrado.");
 			}
 
-			// Salvar o histórico do perfil
 			await this.perfisAcessoRepository.salvarHistoricoPerfil({
 				cdPerfil: idPerfil,
 				nomePerfil: perfilAtual.nomePerfil,
@@ -79,7 +77,6 @@ export class PerfisAcessoService {
 				dtHrAlteracao: new Date(),
 			});
 
-			// Alterar o perfil
 			const perfilAlterado = await this.perfisAcessoRepository.alterarPerfil(
 				{
 					idPerfil,
@@ -89,7 +86,6 @@ export class PerfisAcessoService {
 				usuAlteracao
 			);
 
-			// Alterar as funções associadas ao perfil
 			await this.funcoesPerfilRepository.alteraFuncoesPerfil(
 				idPerfil,
 				idsFuncs

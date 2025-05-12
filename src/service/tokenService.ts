@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { FuncoesSistemaService } from "./funcoesSistemaService";
 import { PermissoesLogin } from "../model/permissoesLogin";
+import { PermissoesLoginOut } from "../model/permissoesLoginOut";
 
 export class TokenService {
 	private funcoesSistemaService: FuncoesSistemaService;
@@ -9,7 +10,7 @@ export class TokenService {
 		this.funcoesSistemaService = new FuncoesSistemaService();
 	}
 
-	gerarToken(permissoesLogin: PermissoesLogin): string {
+	gerarToken(permissoesLogin: PermissoesLoginOut): string {
 		const token = jwt.sign(
 			{
 				permissoesLogin,
@@ -35,9 +36,13 @@ export class TokenService {
 				"permissoesLogin" in decoded
 			) {
 				// Obter a lista de funções do token
-				const listFuncs = decoded.permissoesLogin.cdFuncao
-					.split("|")
-					.map((cdFunc: string) => parseInt(cdFunc, 10));
+				// const listFuncs = decoded.permissoesLogin.cdFuncao
+				// 	.split("|")
+				// 	.map((cdFunc: string) => parseInt(cdFunc, 10));
+
+				const listFuncs = decoded.permissoesLogin.empresa.flatMap((empresa: any) => {
+					return empresa.cdFuncao;
+				});
 
 				// Buscar os nomes das funções no banco de dados
 				const codsFuncoes =

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { LoginService } from "../service/loginService";
-import { Login } from "../model/login";
+import { Login } from "../dto/login";
 import { TokenService } from "../service/tokenService";
 
 /**

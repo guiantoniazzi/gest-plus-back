@@ -1,6 +1,6 @@
-import { Login } from '../model/login';
-import { PermissoesLogin } from '../model/permissoesLogin';
-import { PermissoesLoginOut } from '../model/permissoesLoginOut';
+import { Login } from '../dto/login';
+import { PermissoesLogin } from '../dto/permissoesLogin';
+import { PermissoesLoginOut } from '../dto/permissoesLoginOut';
 import { LoginRepository } from '../repository/loginRepository';
 import jwt from 'jsonwebtoken';
 

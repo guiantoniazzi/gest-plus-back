@@ -1,8 +1,9 @@
 import { Router, Request, Response } from "express";
 import { LoginService } from "../service/loginService";
-import { Login } from "../model/login";
+import { Login } from "../dto/login";
 import { PessoasService } from "../service/pessoasService";
 import { TokenService } from "../service/tokenService";
+import { Funcionalidade } from "../enums/funcionalidade";
 
 /**
  * @swagger
@@ -49,6 +50,121 @@ export default class PessoasController {
 						return res.status(200).json(pessoas).send();
 					} catch (error) {
 						return res.status(500).json({ message: "Erro ao buscar pessoas" });
+					}
+				}
+			);
+
+			/**
+			 * @swagger
+			 * /api/pessoas/cadastrar:
+			 *   post:
+			 *     summary: Cadastrar uma nova pessoa
+			 *     description: Cadastra uma nova pessoa no sistema.
+			 *     tags: [Pessoas]
+			 *     requestBody:
+			 *       required: true
+			 *       content:
+			 *         application/json:
+			 *           schema:
+			 *             type: object
+			 *             properties:
+			 *               ativo:
+			 *                 type: boolean
+			 *                 example: true
+			 *               cargo:
+			 *                 type: number
+			 *                 example: 1
+			 *               cdPessoa:
+			 *                 type: number
+			 *                 example: 123
+			 *               cliente:
+			 *                 type: boolean
+			 *                 example: true
+			 *               cpfCnpj:
+			 *                 type: string
+			 *                 example: "12345678901"
+			 *               dataInicio:
+			 *                 type: string
+			 *                 format: date
+			 *                 example: "2025-05-01"
+			 *               dataNascimento:
+			 *                 type: string
+			 *                 format: date
+			 *                 example: "1990-01-01"
+			 *               email:
+			 *                 type: string
+			 *                 example: "exemplo@email.com"
+			 *               empresa:
+			 *                 type: boolean
+			 *                 example: false
+			 *               empresaUsuario:
+			 *                 type: number
+			 *                 example: 2
+			 *               funcionario:
+			 *                 type: boolean
+			 *                 example: true
+			 *               nome:
+			 *                 type: string
+			 *                 example: "João da Silva"
+			 *               rg:
+			 *                 type: string
+			 *                 example: "123456789"
+			 *     responses:
+			 *       201:
+			 *         description: Pessoa cadastrada com sucesso.
+			 *       400:
+			 *         description: Dados inválidos.
+			 *       500:
+			 *         description: Erro ao cadastrar pessoa.
+			 */
+			this.router.post(
+				"/cadastrar",
+				async (req: Request, res: Response): Promise<any> => {
+					try {
+						const token = req.headers.cookie?.split("=")[1];
+						if (!token) {
+							return res.status(401).json({ message: "Token não fornecido" });
+						}
+
+						let tipoPessoaInsercao = [];
+
+						if (req.body.cliente) {
+							tipoPessoaInsercao.push(Funcionalidade["Gerenciar cliente"]);
+						}
+						if (req.body.funcionario) {
+							tipoPessoaInsercao.push(
+								Funcionalidade["Gerenciar funcionário cliente"]
+							);
+						}
+						if (req.body.empresa) {
+							tipoPessoaInsercao.push(
+								Funcionalidade["Gerenciar empresa consultoria"]
+							);
+						}
+
+						const tokenService = new TokenService();
+						tipoPessoaInsercao.forEach(async (tpInsercao) => {
+							const isValid = await tokenService.validarToken(
+								token,
+								tpInsercao
+							);
+
+							if (!isValid) {
+								return res.status(401).json({ message: "Token inválido" });
+							}
+						});
+
+						const dadosToken = await tokenService.descripToken(token);
+
+						const cadastro = await this.pessoasService.cadastrarPessoa(
+							req.body,
+							dadosToken
+						);
+						return res.status(200).json().send();
+					} catch (error) {
+						return res
+							.status(500)
+							.json({ message: "Erro ao cadastrar pessoa" });
 					}
 				}
 			);

@@ -1,5 +1,5 @@
-import { Login } from "../model/login";
-import { PermissoesLogin } from "../model/permissoesLogin";
+import { Login } from "../dto/login";
+import { PermissoesLogin } from "../dto/permissoesLogin";
 import { con } from "./connection";
 
 export class LoginRepository {

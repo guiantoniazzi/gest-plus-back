@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { FuncoesSistemaService } from "./funcoesSistemaService";
-import { PermissoesLogin } from "../model/permissoesLogin";
-import { PermissoesLoginOut } from "../model/permissoesLoginOut";
+import { PermissoesLogin } from "../dto/permissoesLogin";
+import { PermissoesLoginOut } from "../dto/permissoesLoginOut";
 
 export class TokenService {
 	private funcoesSistemaService: FuncoesSistemaService;

@@ -1,5 +1,6 @@
 import { PermissoesLogin } from "../dto/permissoesLogin";
-import PessoaEntradaDTO from "../dto/pessoasEntradaDTO";
+import { PermissoesLoginOut } from "../dto/permissoesLoginOut";
+import PessoaEntradaDTO from "../dto/pessoaEntradaDTO";
 import { con } from "../repository/connection";
 import { PessoasRepository } from "../repository/pessoasRepository";
 
@@ -10,9 +11,9 @@ export class PessoasService {
 		this.pessoasRepository = new PessoasRepository();
 	}
 
-	async getAll() {
+	async getAll(empresaSelecionada: number) {
 		try {
-			const result = await this.pessoasRepository.getAll();
+			const result = await this.pessoasRepository.getAll(empresaSelecionada);
 			return result;
 		} catch (error) {
 			throw error;
@@ -21,34 +22,55 @@ export class PessoasService {
 
 	async cadastrarPessoa(
 		pessoaEntradaDTO: PessoaEntradaDTO,
-		dadosToken: PermissoesLogin
+		dadosToken: PermissoesLoginOut,
+		empresaSelecionada: number
 	) {
-		const pessoa = {
-			tpPessoa: pessoaEntradaDTO.cpfCnpj.length > 11 ? "J" : "F", // Define se é pessoa física (F) ou jurídica (J)
+		var pessoaCadastrada = await this.pessoasRepository.getByDoc(pessoaEntradaDTO.cpfCnpj);
+
+		if (!pessoaCadastrada) {
+			const pessoa = {
+				tpPessoa: pessoaEntradaDTO.cpfCnpj.length > 11 ? "J" : "F", // Define se é pessoa física (F) ou jurídica (J)
+				cpfCnpj: pessoaEntradaDTO.cpfCnpj,
+				usuInclusao: dadosToken.cdUsuario,
+				dtHrInclusao: new Date(),
+				usuAlteracao: dadosToken.cdUsuario,
+				dtHrAlteracao: new Date(),
+			};
+			console.log("DAdos Token:", dadosToken);
+			console.log("Cadastrando pessoa:", pessoa);
+			pessoaCadastrada = await this.pessoasRepository.cadastrarPessoa(
+				pessoa
+			);
+		}
+
+		const pessoaAux = {
+			cdPessoa: pessoaCadastrada.dataValues.cdPessoa,
+			cdEmpresa: empresaSelecionada,
 			nome: pessoaEntradaDTO.nome,
 			dtNasc: pessoaEntradaDTO.dataNascimento,
-			cpfCnpj: pessoaEntradaDTO.cpfCnpj,
 			rg: pessoaEntradaDTO.rg,
 			email: pessoaEntradaDTO.email,
 			ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
 			cliente: pessoaEntradaDTO.cliente ? 1 : 0, // Converte boolean para TINYINT
 			empresa: pessoaEntradaDTO.empresa ? 1 : 0, // Converte boolean para TINYINT
-			usuInclusao: dadosToken.nome, // Usuário que está cadastrando (pode ser dinâmico)
-			dtHrInclusao: new Date(), // Data/hora atual
+			imagem: "",
+			usuInclusao: dadosToken.cdUsuario,
+			dtHrInclusao: new Date(),
+			usuAlteracao: dadosToken.cdUsuario,
+			dtHrAlteracao: new Date(),
 		};
+		await this.pessoasRepository.cadastrarPessoaAux(pessoaAux);
 
-		const pessoaCadastrada = await this.pessoasRepository.cadastrarPessoa(
-			pessoa
-		);
 
 		if (pessoaEntradaDTO.funcionario) {
 			const funcionario = {
 				cdFuncionario: pessoaCadastrada.dataValues.cdPessoa,
 				cdCliente: pessoaEntradaDTO.cdCliente,
+				cdEmpresa: empresaSelecionada,
 				dtInicio: pessoaEntradaDTO.dataInicio,
 				cargoFuncionario: pessoaEntradaDTO.cargo,
 				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuInclusao: dadosToken.nome,
+				usuInclusao: dadosToken.cdUsuario,
 				dtHrInclusao: new Date(),
 			};
 
@@ -57,10 +79,10 @@ export class PessoasService {
 		if (pessoaEntradaDTO.cliente) {
 			const clienteEmpresa = {
 				cdCliente: pessoaCadastrada.dataValues.cdPessoa,
-				cdEmpresa: pessoaEntradaDTO.empresaUsuario,
+				cdEmpresa: empresaSelecionada,
 				dtInicio: pessoaEntradaDTO.dataInicio,
 				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuInclusao: dadosToken.nome,
+				usuInclusao: dadosToken.cdUsuario,
 				dtHrInclusao: new Date(),
 			};
 
@@ -70,27 +92,29 @@ export class PessoasService {
 
 	async alterarPessoa(
 		pessoaEntradaDTO: PessoaEntradaDTO,
-		dadosToken: PermissoesLogin
+		dadosToken: PermissoesLoginOut,
+		empresaSelecionada: number
 	) {
 		const pessoaCadastrada = await this.pessoasRepository.getById(
-			pessoaEntradaDTO.cdPessoa ?? 0)
+			pessoaEntradaDTO.cdPessoa!)
 		if (!pessoaCadastrada) {
 			throw new Error("Pessoa não encontrada");
 		}	
 
 		const funcionarioCadastrado = await this.pessoasRepository.getFuncionarioById(
-			pessoaEntradaDTO.cdPessoa ?? 0,
-			pessoaEntradaDTO.cdCliente ?? 0
+			pessoaEntradaDTO.cdPessoa!,
+			pessoaEntradaDTO.cdCliente!
 		);
 
 		if (funcionarioCadastrado === null && pessoaEntradaDTO.funcionario == true) {
 			const funcionario = {
 				cdFuncionario: pessoaEntradaDTO.cdPessoa,
 				cdCliente: pessoaEntradaDTO.cdCliente,
+				cdEmpresa: empresaSelecionada,
 				dtInicio: pessoaEntradaDTO.dataInicio,
 				cargoFuncionario: pessoaEntradaDTO.cargo,
 				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuInclusao: dadosToken.nome,
+				usuInclusao: dadosToken.cdUsuario,
 				dtHrInclusao: new Date(),
 			};
 
@@ -99,10 +123,11 @@ export class PessoasService {
 			const funcionario = {
 				cdFuncionario: pessoaEntradaDTO.cdPessoa,
 				cdCliente: pessoaEntradaDTO.cdCliente,
+				cdEmpresa: empresaSelecionada,
 				dtInicio: pessoaEntradaDTO.dataInicio,
 				cargoFuncionario: pessoaEntradaDTO.cargo,
 				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuAlteracao: dadosToken.nome,
+				usuAlteracao: dadosToken.cdUsuario,
 				dtHrAlteracao: new Date(),
 			};
 			await this.pessoasRepository.alterarFuncionarioCliente(funcionario);
@@ -110,25 +135,26 @@ export class PessoasService {
 			const funcionario = {
 				cdFuncionario: pessoaEntradaDTO.cdPessoa,
 				cdCliente: pessoaEntradaDTO.cdCliente,
+				cdEmpresa: empresaSelecionada,
 				ativo: 0, // Converte boolean para TINYINT
-				usuAlteracao: dadosToken.nome,
+				usuAlteracao: dadosToken.cdUsuario,
 				dtHrAlteracao: new Date(),
 			};
 			await this.pessoasRepository.alterarFuncionarioCliente(funcionario);
 		}
 
 		const clienteCadastrado = await this.pessoasRepository.getClienteById(
-			pessoaEntradaDTO.cdPessoa ?? 0,
-			pessoaEntradaDTO.empresaUsuario ?? 0
+			pessoaEntradaDTO.cdPessoa!,
+			empresaSelecionada!
 		);
 
 		if (clienteCadastrado === null && pessoaEntradaDTO.cliente == true) {
 			const clienteEmpresa = {
 				cdCliente: pessoaEntradaDTO.cdPessoa,
-				cdEmpresa: pessoaEntradaDTO.empresaUsuario,
+				cdEmpresa: empresaSelecionada,
 				dtInicio: pessoaEntradaDTO.dataInicio,
 				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuInclusao: dadosToken.nome,
+				usuInclusao: dadosToken.cdUsuario,
 				dtHrInclusao: new Date(),
 			};
 
@@ -136,10 +162,10 @@ export class PessoasService {
 		} else if (clienteCadastrado && pessoaEntradaDTO.cliente == true) {
 			const clienteEmpresa = {
 				cdCliente: pessoaEntradaDTO.cdPessoa,
-				cdEmpresa: pessoaEntradaDTO.empresaUsuario,
+				cdEmpresa: empresaSelecionada,
 				dtInicio: pessoaEntradaDTO.dataInicio,
 				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuAlteracao: dadosToken.nome,
+				usuAlteracao: dadosToken.cdUsuario,
 				dtHrAlteracao: new Date(),
 			};
 
@@ -147,29 +173,29 @@ export class PessoasService {
 		} else if (clienteCadastrado && pessoaEntradaDTO.cliente == false) {
 			const clienteEmpresa = {
 				cdCliente: pessoaEntradaDTO.cdPessoa,
-				cdEmpresa: pessoaEntradaDTO.empresaUsuario,
+				cdEmpresa: empresaSelecionada,
 				ativo: 0, // Converte boolean para TINYINT
-				usuAlteracao: dadosToken.nome,
+				usuAlteracao: dadosToken.cdUsuario,
 				dtHrAlteracao: new Date(),
 			};
 
 			await this.pessoasRepository.alterarClienteEmpresa(clienteEmpresa);
 		}
 
-		const pessoa = {
-			cdPessoa: pessoaEntradaDTO.cdPessoa,
-			tpPessoa: pessoaEntradaDTO.cpfCnpj.length > 11 ? "J" : "F", // Define se é pessoa física (F) ou jurídica (J)	
+		const pessoaAux = {
+			cdPessoa: pessoaCadastrada.dataValues.cdPessoa,
+			cdEmpresa: empresaSelecionada,
 			nome: pessoaEntradaDTO.nome,
 			dtNasc: pessoaEntradaDTO.dataNascimento,
-			cpfCnpj: pessoaEntradaDTO.cpfCnpj,
 			rg: pessoaEntradaDTO.rg,
 			email: pessoaEntradaDTO.email,
 			ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
 			cliente: pessoaEntradaDTO.cliente ? 1 : 0, // Converte boolean para TINYINT
 			empresa: pessoaEntradaDTO.empresa ? 1 : 0, // Converte boolean para TINYINT
-			usuAlteracao: dadosToken.nome, // Usuário que está cadastrando (pode ser dinâmico)
-			dtHrAlteracao: new Date(), // Data/hora atual
+			imagem: "",
+			usuAlteracao: dadosToken.cdUsuario,
+			dtHrAlteracao: new Date(),
 		};
-		await this.pessoasRepository.alterarPessoa(pessoa);
+		await this.pessoasRepository.alterarPessoaAux(pessoaAux);
 	}
 }

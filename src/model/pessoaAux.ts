@@ -1,20 +1,18 @@
 import { DataTypes } from 'sequelize';
 import { conSequelize } from '../repository/connection';
 
-const Pessoas = conSequelize.define(
-  'Pessoas',
+const PessoaAux = conSequelize.define(
+  'PessoaAux',
   {
     cdPessoa: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
       field: 'CD_PESSOA', // Mapeia para a coluna no banco
     },
-    tpPessoa: {
-      type: DataTypes.CHAR(1),
-      allowNull: false,
-      comment: '(F / J)',
-      field: 'TP_PESSOA',
+    cdEmpresa: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        field: 'CD_EMPRESA',
     },
     nome: {
       type: DataTypes.STRING(40),
@@ -25,11 +23,6 @@ const Pessoas = conSequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       field: 'DT_NASC',
-    },
-    cpfCnpj: {
-      type: DataTypes.DOUBLE,
-      allowNull: true,
-      field: 'CPF_CNPJ',
     },
     rg: {
       type: DataTypes.CHAR(12),
@@ -87,9 +80,9 @@ const Pessoas = conSequelize.define(
     },
   },
   {
-    tableName: 'PESSOA', // Nome da tabela no banco de dados
+    tableName: 'PESSOA_AUX', // Nome da tabela no banco de dados
     timestamps: false, // Desativa os campos automáticos createdAt e updatedAt
   }
 );
 
-export default Pessoas;
+export default PessoaAux;

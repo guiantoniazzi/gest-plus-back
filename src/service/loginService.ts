@@ -21,7 +21,6 @@ export class LoginService {
         var permissoesLoginOut: PermissoesLoginOut = {
             cdUsuario: permissoesLogin[0].cdUsuario,
             cdPessoa: permissoesLogin[0].cdPessoa,
-            nome: permissoesLogin[0].nome,
             empresa: permissoesLogin.map(permissao => {
                 return {
                     cdEmpresa: permissao.cdEmpresa,

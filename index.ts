@@ -6,6 +6,11 @@ import PessoasController from "./src/controller/pessoasController";
 import PerfisAcessoController from "./src/controller/perfisAcessoController";
 import FuncoesSistemaController from "./src/controller/funcoesSistemaController";
 
+import './src/model/pessoa';
+import './src/model/pessoaAux';
+
+import './src/model/associations';
+
 const cors = require("cors");
 const app = express();
 

@@ -22,7 +22,7 @@ export class TokenService {
 		return token;
 	}
 
-	async validarToken(token: string, acao: number): Promise<boolean> {
+	async validarToken(token: string, acao: number, empresaSelecionada: number): Promise<boolean> {
 		try {
 			// Decodificar o token
 			const decoded = jwt.verify(
@@ -41,7 +41,9 @@ export class TokenService {
 				// 	.map((cdFunc: string) => parseInt(cdFunc, 10));
 
 				const listFuncs = decoded.permissoesLogin.empresa.flatMap((empresa: any) => {
-					return empresa.cdFuncao;
+					if(empresa.cdEmpresa == empresaSelecionada) {
+						return empresa.cdFuncao;
+					}
 				});
 
 				// Buscar os nomes das funções no banco de dados
@@ -59,12 +61,12 @@ export class TokenService {
 		}
 	}
 
-	descripToken(token: string): PermissoesLogin {
+	descripToken(token: string): PermissoesLoginOut {
 		const decoded = jwt.verify(
 			token,
 			process.env.JWT_SECRET_KEY || "Wzc123A@MaRG!tyv99z@c"
 		) as any;
 
-		return decoded.permissoesLogin as PermissoesLogin;
+		return decoded.permissoesLogin as PermissoesLoginOut;
 	}
 }

@@ -1,7 +1,6 @@
 class PermissoesLoginOut {
     cdUsuario!: string;
     cdPessoa!: number;
-    nome!: string;
     empresa!: Empresa[];
 }
 

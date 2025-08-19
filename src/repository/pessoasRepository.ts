@@ -1,13 +1,22 @@
 import ClienteEmpresa from "../model/clienteEmpresa";
 import FuncionarioCliente from "../model/funcionarioCliente";
-import Pessoas from "../model/pessoas";
+import Pessoa from "../model/pessoa";
+import PessoaAux from "../model/pessoaAux";
 
 export class PessoasRepository {
 	constructor() {}
 
-	async getAll() {
+	async getAll(empresaSelecionada: number) {
 		try {
-			const pessoas = await Pessoas.findAll({ raw: true });
+			const pessoas = await Pessoa.findAll({
+				include: [{
+					model: PessoaAux,
+					as: "pessoaAux",
+					where: {
+						cdEmpresa: empresaSelecionada
+					},
+				}] 
+			});
 			return pessoas;
 		} catch (error) {
 			console.error("Erro ao buscar pessoas:", error);
@@ -17,10 +26,23 @@ export class PessoasRepository {
 
 	async getById(id: number) {
 		try {
-			const pessoa = await Pessoas.findByPk(id);
+			const pessoa = await Pessoa.findByPk(id);
 			if (!pessoa) {
 				throw new Error("Pessoa não encontrada");
 			}
+			return pessoa;
+		} catch (error) {
+			console.error("Erro ao buscar pessoa:", error);
+			throw error;
+		}
+	}
+
+	async getByDoc(doc: string) {
+		try {
+			const pessoa = await Pessoa.findOne({
+				where: { cpfCnpj: doc }
+			});
+			
 			return pessoa;
 		} catch (error) {
 			console.error("Erro ao buscar pessoa:", error);
@@ -59,7 +81,17 @@ export class PessoasRepository {
 
 	async cadastrarPessoa(pessoa: any) {
 		try {
-			const result = await Pessoas.create(pessoa);
+			const result = await Pessoa.create(pessoa);
+			return result;
+		} catch (error) {
+			console.error("Erro ao cadastrar pessoa:", error);
+			throw error;
+		}
+	}
+
+	async cadastrarPessoaAux(pessoa: any) {
+		try {
+			const result = await PessoaAux.create(pessoa);
 			return result;
 		} catch (error) {
 			console.error("Erro ao cadastrar pessoa:", error);
@@ -89,8 +121,20 @@ export class PessoasRepository {
 
 	async alterarPessoa(pessoa: any) {
 		try {
-			const result = await Pessoas.update(pessoa, {
+			const result = await Pessoa.update(pessoa, {
 				where: { cdPessoa: pessoa.cdPessoa },
+			});
+			return result;
+		} catch (error) {
+			console.error("Erro ao alterar pessoa:", error);
+			throw error;
+		}
+	}
+
+	async alterarPessoaAux(pessoa: any) {
+		try {
+			const result = await PessoaAux.update(pessoa, {
+				where: { cdPessoa: pessoa.cdPessoa, cdEmpresa: pessoa.cdEmpresa },
 			});
 			return result;
 		} catch (error) {

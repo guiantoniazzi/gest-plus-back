@@ -16,6 +16,12 @@ const FuncionarioCliente = conSequelize.define(
       primaryKey: true,
       field: "CD_CLIENTE",
     },
+    cdEmpresa: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      field: "CD_EMPRESA",
+    },
     dtInicio: {
       type: DataTypes.DATE,
       allowNull: false,

@@ -9,7 +9,6 @@ export default class PessoaEntradaDTO {
     dataNascimento!: Date;
     email!: string;
     empresa!: boolean;
-    empresaUsuario!: number;
     funcionario!: boolean;
     nome!: string;
     rg?: string;

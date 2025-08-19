@@ -36,13 +36,16 @@ export default class PerfisAcessoController {
 				async (req: Request, res: Response): Promise<any> => {
 					try {
 						const token = req.headers.cookie?.split("=")[1];
+						const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+
 						if (!token) {
 							return res.status(401).json({ message: "Token não fornecido" });
 						}
 						const tokenService = new TokenService();
 						const isValid = await tokenService.validarToken(
 							token,
-							Funcionalidade["Consultar perfil de acesso"]
+							Funcionalidade["Consultar perfil de acesso"],
+							empresaSelecionada
 						);
 
 						if (!isValid) {
@@ -97,11 +100,13 @@ export default class PerfisAcessoController {
 				async (req: Request, res: Response): Promise<any> => {
 					try {
 						const token = req.headers.cookie?.split("=")[1];
+						const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+
 						if (!token) {
 							return res.status(401).json({ message: "Token não fornecido" });
 						}
 						const tokenService = new TokenService();
-						const isValid = tokenService.validarToken(token, Funcionalidade["Gerenciar perfil de acesso"]);
+						const isValid = tokenService.validarToken(token, Funcionalidade["Gerenciar perfil de acesso"], empresaSelecionada);
 						if (!isValid) {
 							return res.status(401).json({ message: "Token inválido" });
 						}
@@ -126,7 +131,7 @@ export default class PerfisAcessoController {
 								ativo,
 								idsFuncoesSistema,
 							},
-							dadosToken.nome
+							dadosToken.cdUsuario
 						);
 						return res.status(201).json(novoPerfil);
 					} catch (error) {
@@ -178,11 +183,13 @@ export default class PerfisAcessoController {
 				async (req: Request, res: Response): Promise<any> => {
 					try {
 						const token = req.headers.cookie?.split("=")[1];
+						const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+
 						if (!token) {
 							return res.status(401).json({ message: "Token não fornecido" });
 						}
 						const tokenService = new TokenService();
-						const isValid = tokenService.validarToken(token, Funcionalidade["Gerenciar perfil de acesso"]);
+						const isValid = tokenService.validarToken(token, Funcionalidade["Gerenciar perfil de acesso"], empresaSelecionada);
 						if (!isValid) {
 							return res.status(401).json({ message: "Token inválido" });
 						}
@@ -209,7 +216,7 @@ export default class PerfisAcessoController {
 								ativo,
 								idsFuncoesSistema,
 							},
-							dadosToken.nome
+							dadosToken.cdUsuario
 						);
 						return res.status(201).json(perfilAlterado);
 					} catch (error) {

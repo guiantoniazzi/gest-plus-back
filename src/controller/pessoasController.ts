@@ -4,6 +4,7 @@ import { Login } from "../dto/login";
 import { PessoasService } from "../service/pessoasService";
 import { TokenService } from "../service/tokenService";
 import { Funcionalidade } from "../enums/funcionalidade";
+import PessoaEntradaDTO from "../dto/pessoaEntradaDTO";
 
 /**
  * @swagger
@@ -29,6 +30,13 @@ export default class PessoasController {
 			 *     summary: Retorna todas as pessoas
 			 *     description: Retorna uma lista de todas as pessoas cadastradas no sistema.
 			 *     tags: [Pessoas]
+			 *     parameters:
+			 *       - in: query
+			 *         name: empresaSelecionada
+			 *         schema:
+			 *           type: integer
+			 *         required: true
+			 *         description: ID da empresa selecionada
 			 *     responses:
 			 *       200:
 			 *         description: Lista de pessoas.
@@ -38,15 +46,22 @@ export default class PessoasController {
 				async (req: Request, res: Response): Promise<any> => {
 					try {
 						const token = req.headers.cookie?.split("=")[1];
+						const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+
 						if (!token) {
 							return res.status(401).json({ message: "Token não fornecido" });
 						}
+
+						if (!empresaSelecionada || isNaN(empresaSelecionada)) {
+							return res.status(400).json({ message: "Informe a empresa selecionada" });
+						}
+
 						const tokenService = new TokenService();
-						const isValid = tokenService.validarToken(token, 0);
+						const isValid = tokenService.validarToken(token, 0, empresaSelecionada);
 						if (!isValid) {
 							return res.status(401).json({ message: "Token inválido" });
 						}
-						const pessoas = await this.pessoasService.getAll();
+						const pessoas = await this.pessoasService.getAll(empresaSelecionada);
 						return res.status(200).json(pessoas).send();
 					} catch (error) {
 						return res.status(500).json({ message: "Erro ao buscar pessoas" });
@@ -122,21 +137,24 @@ export default class PessoasController {
 				async (req: Request, res: Response): Promise<any> => {
 					try {
 						const token = req.headers.cookie?.split("=")[1];
+						const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+						const pessoa = req.body as PessoaEntradaDTO;
+
 						if (!token) {
 							return res.status(401).json({ message: "Token não fornecido" });
 						}
 
 						let tipoPessoaInsercao = [Funcionalidade["Gerenciar pessoa"]];
 
-						if (req.body.cliente) {
+						if (pessoa.cliente) {
 							tipoPessoaInsercao.push(Funcionalidade["Gerenciar cliente"]);
 						}
-						if (req.body.funcionario) {
+						if (pessoa.funcionario) {
 							tipoPessoaInsercao.push(
 								Funcionalidade["Gerenciar funcionário cliente"]
 							);
 						}
-						if (req.body.empresa) {
+						if (pessoa.empresa) {
 							tipoPessoaInsercao.push(
 								Funcionalidade["Gerenciar empresa consultoria"]
 							);
@@ -146,7 +164,8 @@ export default class PessoasController {
 						tipoPessoaInsercao.forEach(async (tpInsercao) => {
 							const isValid = await tokenService.validarToken(
 								token,
-								tpInsercao
+								tpInsercao,
+								empresaSelecionada
 							);
 
 							if (!isValid) {
@@ -157,8 +176,9 @@ export default class PessoasController {
 						const dadosToken = await tokenService.descripToken(token);
 
 						await this.pessoasService.cadastrarPessoa(
-							req.body,
-							dadosToken
+							pessoa,
+							dadosToken,
+							empresaSelecionada
 						);
 						return res.status(200).json().send();
 					} catch (error) {
@@ -236,9 +256,13 @@ export default class PessoasController {
 				async (req: Request, res: Response): Promise<any> => {
 					try {
 						const token = req.headers.cookie?.split("=")[1];
+						const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+
 						if (!token) {
 							return res.status(401).json({ message: "Token não fornecido" });
 						}
+
+						console.log("token:", token);
 
 						let tipoPessoaInsercao = [Funcionalidade["Gerenciar pessoa"]];
 
@@ -260,7 +284,8 @@ export default class PessoasController {
 						tipoPessoaInsercao.forEach(async (tpInsercao) => {
 							const isValid = await tokenService.validarToken(
 								token,
-								tpInsercao
+								tpInsercao,
+								empresaSelecionada
 							);
 
 							if (!isValid) {
@@ -272,7 +297,8 @@ export default class PessoasController {
 
 						await this.pessoasService.alterarPessoa(
 							req.body,
-							dadosToken
+							dadosToken,
+							empresaSelecionada
 						);
 						return res.status(200).json().send();
 					} catch (error) {

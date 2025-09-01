@@ -5,8 +5,8 @@ export default class PessoaEntradaDTO {
     cdPessoa?: number;
     cliente!: boolean;
     cpfCnpj!: string;
-    dataInicio?: Date;
-    dataNascimento!: Date;
+    dtInicio?: Date;
+    dtNasc!: Date;
     email!: string;
     empresa!: boolean;
     funcionario!: boolean;

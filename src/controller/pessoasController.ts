@@ -1,6 +1,4 @@
 import { Router, Request, Response } from "express";
-import { LoginService } from "../service/loginService";
-import { Login } from "../dto/login";
 import { PessoasService } from "../service/pessoasService";
 import { TokenService } from "../service/tokenService";
 import { Funcionalidade } from "../enums/funcionalidade";
@@ -57,14 +55,117 @@ export default class PessoasController {
 						}
 
 						const tokenService = new TokenService();
-						const isValid = tokenService.validarToken(token, 0, empresaSelecionada);
+						const isValid = tokenService.validarToken(token, Funcionalidade["Consultar pessoa"], empresaSelecionada);
 						if (!isValid) {
 							return res.status(401).json({ message: "Token inválido" });
 						}
-						const pessoas = await this.pessoasService.getAll(empresaSelecionada);
+						const pessoas = await this.pessoasService.getPessoas(token, empresaSelecionada, true, true, true, true);
 						return res.status(200).json(pessoas).send();
 					} catch (error) {
 						return res.status(500).json({ message: "Erro ao buscar pessoas" });
+					}
+				}
+			);
+
+			/**
+			 * @swagger
+			 * /api/pessoas/getClientes:
+			 *   get:
+			 *     summary: Retorna todos os clientes
+			 *     description: Retorna uma lista de todas os clientes cadastrados no sistema.
+			 *     tags: [Pessoas]
+			 *     parameters:
+			 *       - in: query
+			 *         name: empresaSelecionada
+			 *         schema:
+			 *           type: integer
+			 *         required: true
+			 *         description: ID da empresa selecionada
+			 *     responses:
+			 *       200:
+			 *         description: Lista de pessoas.
+			 */
+			this.router.get(
+				"/getClientes",
+				async (req: Request, res: Response): Promise<any> => {
+					try {
+						const token = req.headers.cookie?.split("=")[1];
+						const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+
+						if (!token) {
+							return res.status(401).json({ message: "Token não fornecido" });
+						}
+
+						if (!empresaSelecionada || isNaN(empresaSelecionada)) {
+							return res.status(400).json({ message: "Informe a empresa selecionada" });
+						}
+
+						const tokenService = new TokenService();
+						const isValid = tokenService.validarToken(token, Funcionalidade["Consultar cliente"], empresaSelecionada);
+						if (!isValid) {
+							return res.status(401).json({ message: "Token inválido" });
+						}
+						const clientes = await this.pessoasService.getPessoas(token, empresaSelecionada, false, false, true, false);
+						return res.status(200).json(clientes).send();
+					} catch (error) {
+						return res.status(500).json({ message: "Erro ao buscar clientes" });
+					}
+				}
+			);
+
+			/**
+			 * @swagger
+			 * /api/pessoas/getFuncionarios:
+			 *   get:
+			 *     summary: Retorna todos os funcionarios
+			 *     description: Retorna uma lista de todos os funcionarios cadastrados para o cliente no sistema.
+			 *     tags: [Pessoas]
+			 *     parameters:
+			 *       - in: query
+			 *         name: empresaSelecionada
+			 *         schema:
+			 *           type: integer
+			 *         required: true
+			 *         description: ID da empresa selecionada
+			 *       - in: query
+			 *         name: idCliente
+			 *         schema:
+			 *           type: integer
+			 *         required: true
+			 *         description: ID do cliente selecionado
+			 *     responses:
+			 *       200:
+			 *         description: Lista de funcionarios.
+			 */
+			this.router.get(
+				"/getFuncionarios",
+				async (req: Request, res: Response): Promise<any> => {
+					try {
+						const token = req.headers.cookie?.split("=")[1];
+						const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+						const idCliente = parseInt(req.query.idCliente as string);
+
+						if (!token) {
+							return res.status(401).json({ message: "Token não fornecido" });
+						}
+
+						if (!empresaSelecionada || isNaN(empresaSelecionada)) {
+							return res.status(400).json({ message: "Informe a empresa selecionada" });
+						}
+
+						if (!idCliente || isNaN(idCliente)) {
+							return res.status(400).json({ message: "Informe a empresa cliente" });
+						}
+
+						const tokenService = new TokenService();
+						const isValid = tokenService.validarToken(token, Funcionalidade["Consultar funcionário cliente"], empresaSelecionada);
+						if (!isValid) {
+							return res.status(401).json({ message: "Token inválido" });
+						}
+						const clientes = await this.pessoasService.getPessoas(token, empresaSelecionada, false, false, false, true);
+						return res.status(200).json(clientes).send();
+					} catch (error) {
+						return res.status(500).json({ message: "Erro ao buscar funcionários" });
 					}
 				}
 			);
@@ -98,11 +199,11 @@ export default class PessoasController {
 			 *               cpfCnpj:
 			 *                 type: string
 			 *                 example: "12345678901"
-			 *               dataInicio:
+			 *               dtInicio:
 			 *                 type: string
 			 *                 format: date
 			 *                 example: "2025-05-01"
-			 *               dataNascimento:
+			 *               dtNasc:
 			 *                 type: string
 			 *                 format: date
 			 *                 example: "1990-01-01"
@@ -217,11 +318,11 @@ export default class PessoasController {
 			 *               cpfCnpj:
 			 *                 type: string
 			 *                 example: "12345678901"
-			 *               dataInicio:
+			 *               dtInicio:
 			 *                 type: string
 			 *                 format: date
 			 *                 example: "2025-05-01"
-			 *               dataNascimento:
+			 *               dtNasc:
 			 *                 type: string
 			 *                 format: date
 			 *                 example: "1990-01-01"

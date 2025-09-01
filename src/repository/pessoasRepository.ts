@@ -6,17 +6,43 @@ import PessoaAux from "../model/pessoaAux";
 export class PessoasRepository {
 	constructor() {}
 
-	async getAll(empresaSelecionada: number) {
+	async getPessoas(empresaSelecionada: number) {
 		try {
 			const pessoas = await Pessoa.findAll({
 				include: [{
 					model: PessoaAux,
 					as: "pessoaAux",
 					where: {
-						cdEmpresa: empresaSelecionada
+						cdEmpresa: empresaSelecionada,
+						cliente: 0,
+						empresa: 0,
 					},
-				}] 
+				},
+				{
+                    model: FuncionarioCliente,
+                    as: "funcionarioCliente",
+                    required: false, // <-- sempre traz, mesmo se não for funcionário
+                    where: {
+                        cdEmpresa: empresaSelecionada,
+                        ativo: 1
+                    }
+                }] 
 			});
+
+			const pessoasNaoFuncionarios = [];
+			for (const pessoa of pessoas) {
+				const funcionario = await FuncionarioCliente.findOne({
+					where: { 
+						cdFuncionario: pessoa.dataValues.cdPessoa, 
+						cdEmpresa: empresaSelecionada,
+						ativo: 1
+					},
+				});
+				if (!funcionario) {
+					pessoasNaoFuncionarios.push(pessoa);
+				}
+			}
+			
 			return pessoas;
 		} catch (error) {
 			console.error("Erro ao buscar pessoas:", error);
@@ -24,6 +50,110 @@ export class PessoasRepository {
 		}
 	}
 
+	async getEmpresas(empresaSelecionada: number) {
+		try {
+			const empresas = await Pessoa.findAll({
+				include: [{
+					model: PessoaAux,
+					as: "pessoaAux",
+					where: {
+						cdEmpresa: empresaSelecionada,
+						cliente: 0,
+						empresa: 1,
+					},
+				},
+				{
+                    model: FuncionarioCliente,
+                    as: "funcionarioCliente",
+                    required: false, // <-- sempre traz, mesmo se não for funcionário
+                    where: {
+                        cdEmpresa: empresaSelecionada,
+                        ativo: 1
+                    }
+                }] 
+			});
+
+			return empresas;
+		} catch (error) {
+			console.error("Erro ao buscar empresas:", error);
+			throw error;
+		}
+	}
+
+	async getClientes(empresaSelecionada: number) {
+		try {
+			const clientes = await Pessoa.findAll({
+				include: [{
+					model: PessoaAux,
+					as: "pessoaAux",
+					where: {
+						cdEmpresa: empresaSelecionada,
+						cliente: 1,
+						empresa: 0,
+					},
+				},
+				{
+                    model: FuncionarioCliente,
+                    as: "funcionarioCliente",
+                    required: false, // <-- sempre traz, mesmo se não for funcionário
+                    where: {
+                        cdEmpresa: empresaSelecionada,
+                        ativo: 1
+                    }
+                }] 
+			});
+
+			return clientes;
+		} catch (error) {
+			console.error("Erro ao buscar clientes:", error);
+			throw error;
+		}
+	}
+
+	async getFuncionarios(empresaSelecionada: number) {
+		try {
+			const pessoas = await Pessoa.findAll({
+				include: [
+					{
+						model: PessoaAux,
+						as: "pessoaAux",
+						where: {
+							cdEmpresa: empresaSelecionada,
+							cliente: 0,
+							empresa: 0,
+						},
+					},
+					{
+						model: FuncionarioCliente,
+						as: "funcionarioCliente",
+						where: {
+							cdEmpresa: empresaSelecionada,
+							ativo: 1
+						}
+                	}
+				] 
+			});
+
+			const pessoasFuncionarios = [];
+			for (const pessoa of pessoas) {
+				const funcionario = await FuncionarioCliente.findOne({
+					where: { 
+						cdFuncionario: pessoa.dataValues.cdPessoa, 
+						cdEmpresa: empresaSelecionada,
+						ativo: 1
+					},
+				});
+				if (funcionario) {
+					pessoasFuncionarios.push(pessoa);
+				}
+			}
+			
+			return pessoasFuncionarios;
+		} catch (error) {
+			console.error("Erro ao buscar funcionarios:", error);
+			throw error;
+		}
+	}
 	async getById(id: number) {
 		try {
 			const pessoa = await Pessoa.findByPk(id);

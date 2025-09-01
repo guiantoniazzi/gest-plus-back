@@ -10,6 +10,9 @@ import './src/model/pessoa';
 import './src/model/pessoaAux';
 
 import './src/model/associations';
+import ProjetoController from "./src/controller/projetoController";
+import CargoController from "./src/controller/cargoController";
+import SituacaoProjController from "./src/controller/situacaoProjController";
 
 const cors = require("cors");
 const app = express();
@@ -30,12 +33,24 @@ perfisAcessoController.inicializarRotas();
 const funcoesSistemaController = new FuncoesSistemaController();
 funcoesSistemaController.inicializarRotas();
 
+const projetoController = new ProjetoController();
+projetoController.inicializarRotas();
+
+const cargoController = new CargoController();
+cargoController.inicializarRotas();
+
+const situacaoProjController = new SituacaoProjController();
+situacaoProjController.inicializarRotas();
+
 app.use(health);
 
 app.use("/api/login", loginController.router);
 app.use("/api/pessoas", pessoasController.router);
 app.use("/api/perfisAcesso", perfisAcessoController.router);
 app.use("/api/funcoesSistema", funcoesSistemaController.router);
+app.use("/api/projeto", projetoController.router);
+app.use("/api/cargo", cargoController.router);
+app.use("/api/situacaoProj", situacaoProjController.router);
 
 setupSwagger(app);
 

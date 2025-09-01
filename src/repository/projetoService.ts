@@ -1,45 +1,20 @@
 import { PermissoesLogin } from "../dto/permissoesLogin";
 import { PermissoesLoginOut } from "../dto/permissoesLoginOut";
 import PessoaEntradaDTO from "../dto/pessoaEntradaDTO";
-import { Funcionalidade } from "../enums/funcionalidade";
 import { con } from "../repository/connection";
 import { PessoasRepository } from "../repository/pessoasRepository";
-import { TokenService } from "./tokenService";
 
-export class PessoasService {
+export class ProjetoService {
 	private pessoasRepository: PessoasRepository;
-	private tokenService: TokenService;
 
 	constructor() {
 		this.pessoasRepository = new PessoasRepository();
-		this.tokenService = new TokenService();
 	}
 
-	async getPessoas(
-		tokenString: string,
-		empresaSelecionada: number,
-		pessoa: boolean = false,
-		empresa: boolean = false,
-		cliente: boolean = false,
-		funcionario: boolean = false
-	) {
+	async getAll(empresaSelecionada: number) {
 		try {
-			var result: any[] = [];
-
-			if(pessoa && await this.tokenService.validarToken(tokenString, Funcionalidade['Consultar pessoa'], empresaSelecionada)) {
-				result.push(...await this.pessoasRepository.getPessoas(empresaSelecionada));
-			}
-			if(empresa && await this.tokenService.validarToken(tokenString, Funcionalidade['Consultar empresa consultoria'], empresaSelecionada)) {
-				result.push(...await this.pessoasRepository.getEmpresas(empresaSelecionada));
-			}
-			if(cliente && await this.tokenService.validarToken(tokenString, Funcionalidade['Consultar cliente'], empresaSelecionada)) {
-				result.push(...await this.pessoasRepository.getClientes(empresaSelecionada));
-			}
-			if(funcionario && await this.tokenService.validarToken(tokenString, Funcionalidade['Consultar funcionário cliente'], empresaSelecionada)) {
-				result.push(...await this.pessoasRepository.getFuncionarios(empresaSelecionada));
-			}
-			// TODO: ORDENAR DE ALGUM JEITO AI
-			return result;
+			// const result = await this.pessoasRepository.getAll(empresaSelecionada);
+			// return result;
 		} catch (error) {
 			throw error;
 		}

@@ -5,7 +5,7 @@ import { con } from "./connection";
 export class LoginRepository {
     constructor() {
     }
-
+    // TODO: CRIPTOGRAFATION DA PASSWORD
     async validarCredenciais(login: Login): Promise<PermissoesLogin[]> {
         try {
             const [results]: [any[], any] = await con.query("CALL VERIFICAR_LOGIN(?, ?)", [login.usuario, login.senha]); 

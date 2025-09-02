@@ -1,29 +1,33 @@
 import { DataTypes } from "sequelize";
 import { conSequelize } from "../repository/connection";
 
-const SituacaoProj = conSequelize.define(
-  "SituacaoProj",
+const PessoaAtividade = conSequelize.define(
+  "PessoaAtividade",
   {
-    cdSituacao: {
+    cdPessoa: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
-      field: "CD_SITUACAO",
+      field: "CD_PESSOA",
     },
-    descSituacao: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
-      field: "DESC_SITUACAO",
+    cdAtiv: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      field: "CD_ATIV",
     },
-    ativo: {
-      type: DataTypes.TINYINT,
+    dtInicio: {
+      type: DataTypes.DATE,
       allowNull: false,
-      field: "ATIVO",
+      field: "DT_INICIO",
     },
-    atividade: {
-      type: DataTypes.TINYINT,
-      allowNull: false,
-      field: "ATIVIDADE",
+    dtFim: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "DT_FIM",
+    },
+    qtdHr: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: "QTD_HR",
     },
     usuInclusao: {
       type: DataTypes.CHAR(8),
@@ -48,9 +52,9 @@ const SituacaoProj = conSequelize.define(
     },
   },
   {
-    tableName: "SITUACAO_PROJ",
+    tableName: "PESSOA_ATIVIDADE",
     timestamps: false,
   }
 );
 
-export default SituacaoProj;
+export default PessoaAtividade;

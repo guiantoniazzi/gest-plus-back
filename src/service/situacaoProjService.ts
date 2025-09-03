@@ -7,9 +7,9 @@ export class SituacaoProjService {
         this.situacaoProjRepository = new SituacaoProjRepository();
     }
 
-    async getAll() {
+    async getAll(atividade: boolean = false) {
         try {
-            return await this.situacaoProjRepository.getAll();
+            return await this.situacaoProjRepository.getAll(atividade);
         } catch (error) {
             throw error;
         }

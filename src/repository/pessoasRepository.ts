@@ -43,7 +43,7 @@ export class PessoasRepository {
 				}
 			}
 			
-			return pessoas;
+			return pessoasNaoFuncionarios;
 		} catch (error) {
 			console.error("Erro ao buscar pessoas:", error);
 			throw error;

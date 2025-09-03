@@ -22,9 +22,9 @@ export default class AtividadesController {
         try {
             /**
              * @swagger
-             * /api/atividade/getAll:
+             * /api/atividade/getByProj:
              *   get:
-             *     summary: Retorna todas as atividades
+             *     summary: Retorna todas as atividades do projeto
              *     description: Retorna uma lista de todas as atividades, pessoas alocadas e status.
              *     tags: [Atividades]
              *     parameters:
@@ -34,22 +34,32 @@ export default class AtividadesController {
              *           type: integer
              *         required: true
              *         description: ID da empresa selecionada
+             *       - in: query
+             *         name: idProj
+             *         schema:
+             *           type: integer
+             *         required: true
+             *         description: ID do projeto selecionado
              *     responses:
              *       200:
              *         description: Lista de atividades.
              */
             this.router.get(
-                "/getAll",
+                "/getByProj",
                 async (req: Request, res: Response): Promise<any> => {
                     try {
                         const token = req.headers.cookie?.split("=")[1];
                         const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+                        const idProj = parseInt(req.query.idProj as string);
 
                         if (!token) {
                             return res.status(401).json({ message: "Token não fornecido" });
                         }
                         if (!empresaSelecionada || isNaN(empresaSelecionada)) {
                             return res.status(400).json({ message: "Informe a empresa selecionada" });
+                        }
+                        if (!idProj || isNaN(idProj)) {
+                            return res.status(400).json({ message: "Informe o projeto selecionado" });
                         }
 
                         const tokenService = new TokenService();
@@ -58,7 +68,7 @@ export default class AtividadesController {
                             return res.status(401).json({ message: "Token inválido" });
                         }
 
-                        const atividades = await this.atividadeService.getAll();
+                        const atividades = await this.atividadeService.getByIdProj(idProj);
                         return res.status(200).json(atividades).send();
                     } catch (error) {
                         return res.status(500).json({ message: "Erro ao buscar atividades" });

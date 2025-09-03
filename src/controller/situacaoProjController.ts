@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { SituacaoProjService } from "../service/situacaoProjService";
+import { isBooleanString } from "class-validator";
 
 /**
  * @swagger
@@ -25,6 +26,13 @@ export default class SituacaoProjController {
              *     summary: Retorna todas as situações de projeto
              *     description: Retorna uma lista de todas as situações de projeto cadastradas no sistema.
              *     tags: [SituacaoProj]
+			 *     parameters:
+             *       - in: query
+             *         name: atividade
+             *         schema:
+             *           type: boolean
+             *         required: true
+             *         description: Identificador de identidade
              *     responses:
              *       200:
              *         description: Lista de situações de projeto.
@@ -33,7 +41,8 @@ export default class SituacaoProjController {
                 "/getAll",
                 async (req: Request, res: Response): Promise<any> => {
                     try {
-                        const situacoes = await this.situacaoProjService.getAll();
+						const atividade = isBooleanString(req.query.atividade as string);
+                        const situacoes = await this.situacaoProjService.getAll(atividade);
                         return res.status(200).json(situacoes);
                     } catch (error) {
                         return res.status(500).json({ message: "Erro ao buscar situações de projeto" });

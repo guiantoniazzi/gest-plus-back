@@ -7,9 +7,9 @@ export class AtividadeService {
         this.atividadeRepository = new AtividadeRepository();
     }
 
-    async getAll() {
+    async getByIdProj(idProj: number) {
         try {
-            return await this.atividadeRepository.getAll();
+            return await this.atividadeRepository.getByIdProj(idProj);
         } catch (error) {
             throw error;
         }

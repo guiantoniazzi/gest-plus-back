@@ -8,9 +8,10 @@ export class AtividadeRepository {
     constructor() { }
 
     // Busca todas as atividades, pessoas alocadas (PessoaAux) e descrição do status
-    async getAll() {
+    async getByIdProj(idProj: number) {
         try {
             const atividades = await Atividade.findAll({
+                where: { cdProj: idProj },
                 include: [
                     {
                         model: PessoaAtividade,

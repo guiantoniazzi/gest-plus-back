@@ -172,6 +172,52 @@ export default class PessoasController {
 
 			/**
 			 * @swagger
+			 * /api/pessoas/getMeusFuncionarios:
+			 *   get:
+			 *     summary: Retorna todos os funcionarios
+			 *     description: Retorna uma lista de todos os funcionarios cadastrados no sistema.
+			 *     tags: [Pessoas]
+			 *     parameters:
+			 *       - in: query
+			 *         name: empresaSelecionada
+			 *         schema:
+			 *           type: integer
+			 *         required: true
+			 *         description: ID da empresa selecionada
+			 *     responses:
+			 *       200:
+			 *         description: Lista de funcionarios.
+			 */
+			this.router.get(
+				"/getMeusFuncionarios",
+				async (req: Request, res: Response): Promise<any> => {
+					try {
+						const token = req.headers.cookie?.split("=")[1];
+						const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+
+						if (!token) {
+							return res.status(401).json({ message: "Token não fornecido" });
+						}
+
+						if (!empresaSelecionada || isNaN(empresaSelecionada)) {
+							return res.status(400).json({ message: "Informe a empresa selecionada" });
+						}
+
+						const tokenService = new TokenService();
+						const isValid = tokenService.validarToken(token, Funcionalidade["Consultar pessoa"], empresaSelecionada);
+						if (!isValid) {
+							return res.status(401).json({ message: "Token inválido" });
+						}
+						const clientes = await this.pessoasService.getPessoas(token, empresaSelecionada, true, false, false, false);
+						return res.status(200).json(clientes).send();
+					} catch (error) {
+						return res.status(500).json({ message: "Erro ao buscar funcionários" });
+					}
+				}
+			);
+
+			/**
+			 * @swagger
 			 * /api/pessoas/cadastrar:
 			 *   post:
 			 *     summary: Cadastrar uma nova pessoa

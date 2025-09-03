@@ -31,8 +31,12 @@ export class AtividadeService {
         }
     }
 
-    async alocar(alocacao: any) {
+    async alocar(alocacao: any, dadosToken: any) {
         try {
+            alocacao.usuInclusao = dadosToken.cdUsuario;
+            alocacao.usuAlteracao = dadosToken.cdUsuario;
+            alocacao.dtHrInclusao = Date.now();
+            alocacao.dtHrAlteracao = Date.now();
             return await this.atividadeRepository.alocar(alocacao);
         } catch (error) {
             throw error;
@@ -55,8 +59,12 @@ export class AtividadeService {
         }
     }
 
-    async cadastrar(atividade: any) {
+    async cadastrar(atividade: any, dadosToken: any) {
         try {
+            atividade.usuInclusao = dadosToken.cdUsuario;
+            atividade.usuAlteracao = dadosToken.cdUsuario;
+            atividade.dtHrInclusao = Date.now();
+            atividade.dtHrAlteracao = Date.now();
             return await this.atividadeRepository.cadastrar(atividade);
         } catch (error) {
             throw error;

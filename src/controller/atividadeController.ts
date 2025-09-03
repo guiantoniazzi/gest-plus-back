@@ -268,9 +268,6 @@ export default class AtividadesController {
  *               qtdHr:
  *                 type: integer
  *                 example: 8
- *               usuInclusao:
- *                 type: string
- *                 example: "admin"
  *     responses:
  *       200:
  *         description: Pessoa alocada com sucesso.
@@ -299,7 +296,9 @@ export default class AtividadesController {
                             return res.status(401).json({ message: "Token inválido" });
                         }
 
-                        await this.atividadeService.alocar(req.body);
+                        const dadosToken = await tokenService.descripToken(token);
+
+                        await this.atividadeService.alocar(req.body, dadosToken);
                         return res.status(200).json().send();
                     } catch (error) {
                         return res.status(500).json({ message: "Erro ao alocar pessoa" });
@@ -525,6 +524,7 @@ export default class AtividadesController {
             "/cadastrar",
             async (req: Request, res: Response): Promise<any> => {
                 try {
+                    console.log(req.body)
                     const token = req.headers.cookie?.split("=")[1];
                     const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
 
@@ -541,8 +541,10 @@ export default class AtividadesController {
                         return res.status(401).json({ message: "Token inválido" });
                     }
 
-                    await this.atividadeService.cadastrar(req.body);
-                    return res.status(201).json().send();
+                    const dadosToken = await tokenService.descripToken(token);
+
+                    const insert = await this.atividadeService.cadastrar(req.body, dadosToken);
+                    return res.status(201).json(insert).send();
                 } catch (error) {
                     return res.status(500).json({ message: "Erro ao cadastrar atividade" });
                 }

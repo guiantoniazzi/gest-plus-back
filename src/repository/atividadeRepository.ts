@@ -8,7 +8,7 @@ export class AtividadeRepository {
     constructor() { }
 
     // Busca todas as atividades, pessoas alocadas (PessoaAux) e descrição do status
-    async getByIdProj(idProj: number) {
+    async getByIdProj(idProj: number, cdEmpresa: number) {
         try {
             const atividades = await Atividade.findAll({
                 where: { cdProj: idProj },
@@ -19,9 +19,10 @@ export class AtividadeRepository {
                         include: [
                             {
                                 model: PessoaAux,
-                                as: "pessoaAux"
+                                as: "pessoaAux",
+                                where: { cdEmpresa: cdEmpresa }
                             }
-                        ]
+                        ],
                     },
                     {
                         model: SituacaoProj,
@@ -45,6 +46,35 @@ export class AtividadeRepository {
                     {
                         model: PessoaAtividade,
                         as: "pessoasAtividade",
+                        include: [
+                            {
+                                model: PessoaAux,
+                                as: "pessoaAux"
+                            }
+                        ]
+                    },
+                    {
+                        model: SituacaoProj,
+                        as: "situacaoProj"
+                    }
+                ]
+            });
+            return atividade;
+        } catch (error) {
+            console.error("Erro ao buscar atividade por ID:", error);
+            throw error;
+        }
+    }
+
+    async getByCdAtivCdPessoa(cdAtiv: number, cdPessoa: number) {
+        try {
+            const atividade = await Atividade.findOne({
+                where: { cdAtiv },
+                include: [
+                    {
+                        model: PessoaAtividade,
+                        as: "pessoasAtividade",
+                        where: { cdPessoa },
                         include: [
                             {
                                 model: PessoaAux,

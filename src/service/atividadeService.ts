@@ -7,9 +7,9 @@ export class AtividadeService {
         this.atividadeRepository = new AtividadeRepository();
     }
 
-    async getByIdProj(idProj: number) {
+    async getByIdProj(idProj: number, cdEmpresa: number) {
         try {
-            return await this.atividadeRepository.getByIdProj(idProj);
+            return await this.atividadeRepository.getByIdProj(idProj, cdEmpresa);
         } catch (error) {
             throw error;
         }
@@ -33,10 +33,17 @@ export class AtividadeService {
 
     async alocar(alocacao: any, dadosToken: any) {
         try {
-            alocacao.usuInclusao = dadosToken.cdUsuario;
+            var alocacaoAnterior = await this.atividadeRepository.getByCdAtivCdPessoa(alocacao.cdAtiv, alocacao.cdPessoa);
+
             alocacao.usuAlteracao = dadosToken.cdUsuario;
-            alocacao.dtHrInclusao = Date.now();
             alocacao.dtHrAlteracao = Date.now();
+
+            if (alocacaoAnterior) {
+                return await this.atividadeRepository.alterarAlocacao(alocacao);
+            }
+
+            alocacao.usuInclusao = dadosToken.cdUsuario;
+            alocacao.dtHrInclusao = Date.now();
             return await this.atividadeRepository.alocar(alocacao);
         } catch (error) {
             throw error;

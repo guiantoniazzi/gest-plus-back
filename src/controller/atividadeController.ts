@@ -68,7 +68,7 @@ export default class AtividadesController {
                             return res.status(401).json({ message: "Token inválido" });
                         }
 
-                        const atividades = await this.atividadeService.getByIdProj(idProj);
+                        const atividades = await this.atividadeService.getByIdProj(idProj, empresaSelecionada);
                         return res.status(200).json(atividades).send();
                     } catch (error) {
                         return res.status(500).json({ message: "Erro ao buscar atividades" });

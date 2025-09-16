@@ -20,6 +20,11 @@ const SituacaoProj = conSequelize.define(
       allowNull: false,
       field: "ATIVO",
     },
+    cor: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "COR",
+    },
     atividade: {
       type: DataTypes.TINYINT,
       allowNull: false,

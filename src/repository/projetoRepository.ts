@@ -16,7 +16,7 @@ export class ProjetoRepository {
                     {
                         model: SituacaoProj,
                         as: "situacaoProj",
-                        attributes: ["descSituacao"],
+                        attributes: ["descSituacao", "cor"],
                     },
                 ]
 			});

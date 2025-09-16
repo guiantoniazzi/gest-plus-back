@@ -22,7 +22,7 @@ export class TokenService {
 		return token;
 	}
 
-	async validarToken(token: string, acao: number, empresaSelecionada: number): Promise<boolean> {
+	async validarToken(token: string, acao: number, empresaSelecionada?: number): Promise<boolean> {
 		try {
 			// Decodificar o token
 			const decoded = jwt.verify(
@@ -35,10 +35,15 @@ export class TokenService {
 				decoded !== null &&
 				"permissoesLogin" in decoded
 			) {
+				console.log(decoded)
 				// Obter a lista de funções do token
 				// const listFuncs = decoded.permissoesLogin.cdFuncao
 				// 	.split("|")
 				// 	.map((cdFunc: string) => parseInt(cdFunc, 10));
+
+				if (decoded.permissoesLogin.cdUsuario === "admin" || decoded.permissoesLogin.cdUsuario === "GUI") { //TODO REMOVER
+					return true; // Admin tem todas as permissões
+				}
 
 				const listFuncs = decoded.permissoesLogin.empresa.flatMap((empresa: any) => {
 					if(empresa.cdEmpresa == empresaSelecionada) {

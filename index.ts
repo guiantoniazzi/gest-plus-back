@@ -14,6 +14,7 @@ import ProjetoController from "./src/controller/projetoController";
 import CargoController from "./src/controller/cargoController";
 import SituacaoProjController from "./src/controller/situacaoProjController";
 import AtividadeController from "./src/controller/atividadeController";
+import UsuarioController from "./src/controller/usuarioController";
 
 const cors = require("cors");
 const app = express();
@@ -46,6 +47,9 @@ situacaoProjController.inicializarRotas();
 const atividadeController = new AtividadeController();
 atividadeController.inicializarRotas();
 
+const usuarioController = new UsuarioController();
+usuarioController.inicializarRotas();
+
 app.use(health);
 
 app.use("/api/login", loginController.router);
@@ -56,6 +60,7 @@ app.use("/api/projeto", projetoController.router);
 app.use("/api/cargo", cargoController.router);
 app.use("/api/situacaoProj", situacaoProjController.router);
 app.use("/api/atividade", atividadeController.router);
+app.use("/api/usuario", usuarioController.router);
 
 setupSwagger(app);
 

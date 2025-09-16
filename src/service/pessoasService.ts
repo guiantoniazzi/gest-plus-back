@@ -7,220 +7,268 @@ import { PessoasRepository } from "../repository/pessoasRepository";
 import { TokenService } from "./tokenService";
 
 export class PessoasService {
-	private pessoasRepository: PessoasRepository;
-	private tokenService: TokenService;
+  private pessoasRepository: PessoasRepository;
+  private tokenService: TokenService;
 
-	constructor() {
-		this.pessoasRepository = new PessoasRepository();
-		this.tokenService = new TokenService();
-	}
+  constructor() {
+    this.pessoasRepository = new PessoasRepository();
+    this.tokenService = new TokenService();
+  }
 
-	async getPessoas(
-		tokenString: string,
-		empresaSelecionada: number,
-		pessoa: boolean = false,
-		empresa: boolean = false,
-		cliente: boolean = false,
-		funcionario: boolean = false
-	) {
-		try {
-			var result: any[] = [];
+  async getPessoasAdm() {
+    return await this.pessoasRepository.getPessoasAdm();
+  }
 
-			if(pessoa && await this.tokenService.validarToken(tokenString, Funcionalidade['Consultar pessoa'], empresaSelecionada)) {
-				result.push(...await this.pessoasRepository.getPessoas(empresaSelecionada));
-			}
-			if(empresa && await this.tokenService.validarToken(tokenString, Funcionalidade['Consultar empresa consultoria'], empresaSelecionada)) {
-				result.push(...await this.pessoasRepository.getEmpresas(empresaSelecionada));
-			}
-			if(cliente && await this.tokenService.validarToken(tokenString, Funcionalidade['Consultar cliente'], empresaSelecionada)) {
-				result.push(...await this.pessoasRepository.getClientes(empresaSelecionada));
-			}
-			if(funcionario && await this.tokenService.validarToken(tokenString, Funcionalidade['Consultar funcionário cliente'], empresaSelecionada)) {
-				result.push(...await this.pessoasRepository.getFuncionarios(empresaSelecionada));
-			}
-			// TODO: ORDENAR DE ALGUM JEITO AI
-			return result;
-		} catch (error) {
-			throw error;
-		}
-	}
+  async getEmpresasAdm() {
+    return await this.pessoasRepository.getEmpresasAdm();
+  }
 
-	async cadastrarPessoa(
-		pessoaEntradaDTO: PessoaEntradaDTO,
-		dadosToken: PermissoesLoginOut,
-		empresaSelecionada: number
-	) {
-		var pessoaCadastrada = await this.pessoasRepository.getByDoc(pessoaEntradaDTO.cpfCnpj);
+  async getPessoas(
+    tokenString: string,
+    empresaSelecionada: number,
+    pessoa: boolean = false,
+    empresa: boolean = false,
+    cliente: boolean = false,
+    funcionario: boolean = false
+  ) {
+    try {
+      var result: any[] = [];
 
-		if (!pessoaCadastrada) {
-			const pessoa = {
-				tpPessoa: pessoaEntradaDTO.cpfCnpj.length > 11 ? "J" : "F", // Define se é pessoa física (F) ou jurídica (J)
-				cpfCnpj: pessoaEntradaDTO.cpfCnpj,
-				usuInclusao: dadosToken.cdUsuario,
-				dtHrInclusao: new Date(),
-				usuAlteracao: dadosToken.cdUsuario,
-				dtHrAlteracao: new Date(),
-			};
-			console.log("DAdos Token:", dadosToken);
-			console.log("Cadastrando pessoa:", pessoa);
-			pessoaCadastrada = await this.pessoasRepository.cadastrarPessoa(
-				pessoa
-			);
-		}
+      if (
+        pessoa &&
+        (await this.tokenService.validarToken(
+          tokenString,
+          Funcionalidade["Consultar pessoa"],
+          empresaSelecionada
+        ))
+      ) {
+        result.push(
+          ...(await this.pessoasRepository.getPessoas(empresaSelecionada))
+        );
+      }
+      if (
+        empresa &&
+        (await this.tokenService.validarToken(
+          tokenString,
+          Funcionalidade["Consultar empresa consultoria"],
+          empresaSelecionada
+        ))
+      ) {
+        result.push(
+          ...(await this.pessoasRepository.getEmpresas(empresaSelecionada))
+        );
+      }
+      if (
+        cliente &&
+        (await this.tokenService.validarToken(
+          tokenString,
+          Funcionalidade["Consultar cliente"],
+          empresaSelecionada
+        ))
+      ) {
+        result.push(
+          ...(await this.pessoasRepository.getClientes(empresaSelecionada))
+        );
+      }
+      if (
+        funcionario &&
+        (await this.tokenService.validarToken(
+          tokenString,
+          Funcionalidade["Consultar funcionário cliente"],
+          empresaSelecionada
+        ))
+      ) {
+        result.push(
+          ...(await this.pessoasRepository.getFuncionarios(empresaSelecionada))
+        );
+      }
+      // TODO: ORDENAR DE ALGUM JEITO AI
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 
-		const pessoaAux = {
-			cdPessoa: pessoaCadastrada.dataValues.cdPessoa,
-			cdEmpresa: empresaSelecionada,
-			nome: pessoaEntradaDTO.nome,
-			dtNasc: pessoaEntradaDTO.dtNasc,
-			rg: pessoaEntradaDTO.rg,
-			email: pessoaEntradaDTO.email,
-			ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-			cliente: pessoaEntradaDTO.cliente ? 1 : 0, // Converte boolean para TINYINT
-			empresa: pessoaEntradaDTO.empresa ? 1 : 0, // Converte boolean para TINYINT
-			imagem: "",
-			usuInclusao: dadosToken.cdUsuario,
-			dtHrInclusao: new Date(),
-			usuAlteracao: dadosToken.cdUsuario,
-			dtHrAlteracao: new Date(),
-		};
-		await this.pessoasRepository.cadastrarPessoaAux(pessoaAux);
+  async cadastrarPessoa(
+    pessoaEntradaDTO: PessoaEntradaDTO,
+    dadosToken: PermissoesLoginOut,
+    empresaSelecionada: number
+  ) {
+    var pessoaCadastrada = await this.pessoasRepository.getByDoc(
+      pessoaEntradaDTO.cpfCnpj
+    );
 
+    if (!pessoaCadastrada) {
+      const pessoa = {
+        tpPessoa: pessoaEntradaDTO.cpfCnpj.length > 11 ? "J" : "F", // Define se é pessoa física (F) ou jurídica (J)
+        cpfCnpj: pessoaEntradaDTO.cpfCnpj,
+        usuInclusao: dadosToken.cdUsuario,
+        dtHrInclusao: new Date(),
+        usuAlteracao: dadosToken.cdUsuario,
+        dtHrAlteracao: new Date(),
+      };
+      console.log("DAdos Token:", dadosToken);
+      console.log("Cadastrando pessoa:", pessoa);
+      pessoaCadastrada = await this.pessoasRepository.cadastrarPessoa(pessoa);
+    }
 
-		if (pessoaEntradaDTO.funcionario) {
-			const funcionario = {
-				cdFuncionario: pessoaCadastrada.dataValues.cdPessoa,
-				cdCliente: pessoaEntradaDTO.cdCliente,
-				cdEmpresa: empresaSelecionada,
-				dtInicio: pessoaEntradaDTO.dtInicio,
-				cargoFuncionario: pessoaEntradaDTO.cargo,
-				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuInclusao: dadosToken.cdUsuario,
-				dtHrInclusao: new Date(),
-			};
+    const pessoaAux = {
+      cdPessoa: pessoaCadastrada.dataValues.cdPessoa,
+      cdEmpresa: empresaSelecionada,
+      nome: pessoaEntradaDTO.nome,
+      dtNasc: pessoaEntradaDTO.dtNasc,
+      rg: pessoaEntradaDTO.rg,
+      email: pessoaEntradaDTO.email,
+      ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
+      cliente: pessoaEntradaDTO.cliente ? 1 : 0, // Converte boolean para TINYINT
+      empresa: pessoaEntradaDTO.empresa ? 1 : 0, // Converte boolean para TINYINT
+      imagem: "",
+      usuInclusao: dadosToken.cdUsuario,
+      dtHrInclusao: new Date(),
+      usuAlteracao: dadosToken.cdUsuario,
+      dtHrAlteracao: new Date(),
+    };
+    await this.pessoasRepository.cadastrarPessoaAux(pessoaAux);
 
-			await this.pessoasRepository.cadastrarFuncionarioCliente(funcionario);
-		}
-		if (pessoaEntradaDTO.cliente) {
-			const clienteEmpresa = {
-				cdCliente: pessoaCadastrada.dataValues.cdPessoa,
-				cdEmpresa: empresaSelecionada,
-				dtInicio: pessoaEntradaDTO.dtInicio,
-				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuInclusao: dadosToken.cdUsuario,
-				dtHrInclusao: new Date(),
-			};
+    if (pessoaEntradaDTO.funcionario) {
+      const funcionario = {
+        cdFuncionario: pessoaCadastrada.dataValues.cdPessoa,
+        cdCliente: pessoaEntradaDTO.cdCliente,
+        cdEmpresa: empresaSelecionada,
+        dtInicio: pessoaEntradaDTO.dtInicio,
+        cargoFuncionario: pessoaEntradaDTO.cargo,
+        ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
+        usuInclusao: dadosToken.cdUsuario,
+        dtHrInclusao: new Date(),
+      };
 
-			await this.pessoasRepository.cadastrarClienteEmpresa(clienteEmpresa);
-		}
-	}
+      await this.pessoasRepository.cadastrarFuncionarioCliente(funcionario);
+    }
+    if (pessoaEntradaDTO.cliente) {
+      const clienteEmpresa = {
+        cdCliente: pessoaCadastrada.dataValues.cdPessoa,
+        cdEmpresa: empresaSelecionada,
+        dtInicio: pessoaEntradaDTO.dtInicio,
+        ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
+        usuInclusao: dadosToken.cdUsuario,
+        dtHrInclusao: new Date(),
+      };
 
-	async alterarPessoa(
-		pessoaEntradaDTO: PessoaEntradaDTO,
-		dadosToken: PermissoesLoginOut,
-		empresaSelecionada: number
-	) {
-		const pessoaCadastrada = await this.pessoasRepository.getById(
-			pessoaEntradaDTO.cdPessoa!)
-		if (!pessoaCadastrada) {
-			throw new Error("Pessoa não encontrada");
-		}	
+      await this.pessoasRepository.cadastrarClienteEmpresa(clienteEmpresa);
+    }
+  }
 
-		const funcionarioCadastrado = await this.pessoasRepository.getFuncionarioById(
-			pessoaEntradaDTO.cdPessoa!,
-			pessoaEntradaDTO.cdCliente!
-		);
+  async alterarPessoa(
+    pessoaEntradaDTO: PessoaEntradaDTO,
+    dadosToken: PermissoesLoginOut,
+    empresaSelecionada: number
+  ) {
+    const pessoaCadastrada = await this.pessoasRepository.getById(
+      pessoaEntradaDTO.cdPessoa!
+    );
+    if (!pessoaCadastrada) {
+      throw new Error("Pessoa não encontrada");
+    }
 
-		if (funcionarioCadastrado === null && pessoaEntradaDTO.funcionario == true) {
-			const funcionario = {
-				cdFuncionario: pessoaEntradaDTO.cdPessoa,
-				cdCliente: pessoaEntradaDTO.cdCliente,
-				cdEmpresa: empresaSelecionada,
-				dtInicio: pessoaEntradaDTO.dtInicio,
-				cargoFuncionario: pessoaEntradaDTO.cargo,
-				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuInclusao: dadosToken.cdUsuario,
-				dtHrInclusao: new Date(),
-			};
+    const funcionarioCadastrado =
+      await this.pessoasRepository.getFuncionarioById(
+        pessoaEntradaDTO.cdPessoa!,
+        pessoaEntradaDTO.cdCliente!
+      );
 
-			await this.pessoasRepository.cadastrarFuncionarioCliente(funcionario);
-		} else if (funcionarioCadastrado && pessoaEntradaDTO.funcionario == true) {
-			const funcionario = {
-				cdFuncionario: pessoaEntradaDTO.cdPessoa,
-				cdCliente: pessoaEntradaDTO.cdCliente,
-				cdEmpresa: empresaSelecionada,
-				dtInicio: pessoaEntradaDTO.dtInicio,
-				cargoFuncionario: pessoaEntradaDTO.cargo,
-				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuAlteracao: dadosToken.cdUsuario,
-				dtHrAlteracao: new Date(),
-			};
-			await this.pessoasRepository.alterarFuncionarioCliente(funcionario);
-		} else if (funcionarioCadastrado && pessoaEntradaDTO.funcionario == false) {
-			const funcionario = {
-				cdFuncionario: pessoaEntradaDTO.cdPessoa,
-				cdCliente: pessoaEntradaDTO.cdCliente,
-				cdEmpresa: empresaSelecionada,
-				ativo: 0, // Converte boolean para TINYINT
-				usuAlteracao: dadosToken.cdUsuario,
-				dtHrAlteracao: new Date(),
-			};
-			await this.pessoasRepository.alterarFuncionarioCliente(funcionario);
-		}
+    if (
+      funcionarioCadastrado === null &&
+      pessoaEntradaDTO.funcionario == true
+    ) {
+      const funcionario = {
+        cdFuncionario: pessoaEntradaDTO.cdPessoa,
+        cdCliente: pessoaEntradaDTO.cdCliente,
+        cdEmpresa: empresaSelecionada,
+        dtInicio: pessoaEntradaDTO.dtInicio,
+        cargoFuncionario: pessoaEntradaDTO.cargo,
+        ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
+        usuInclusao: dadosToken.cdUsuario,
+        dtHrInclusao: new Date(),
+      };
 
-		const clienteCadastrado = await this.pessoasRepository.getClienteById(
-			pessoaEntradaDTO.cdPessoa!,
-			empresaSelecionada!
-		);
+      await this.pessoasRepository.cadastrarFuncionarioCliente(funcionario);
+    } else if (funcionarioCadastrado && pessoaEntradaDTO.funcionario == true) {
+      const funcionario = {
+        cdFuncionario: pessoaEntradaDTO.cdPessoa,
+        cdCliente: pessoaEntradaDTO.cdCliente,
+        cdEmpresa: empresaSelecionada,
+        dtInicio: pessoaEntradaDTO.dtInicio,
+        cargoFuncionario: pessoaEntradaDTO.cargo,
+        ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
+        usuAlteracao: dadosToken.cdUsuario,
+        dtHrAlteracao: new Date(),
+      };
+      await this.pessoasRepository.alterarFuncionarioCliente(funcionario);
+    } else if (funcionarioCadastrado && pessoaEntradaDTO.funcionario == false) {
+      const funcionario = {
+        cdFuncionario: pessoaEntradaDTO.cdPessoa,
+        cdCliente: pessoaEntradaDTO.cdCliente,
+        cdEmpresa: empresaSelecionada,
+        ativo: 0, // Converte boolean para TINYINT
+        usuAlteracao: dadosToken.cdUsuario,
+        dtHrAlteracao: new Date(),
+      };
+      await this.pessoasRepository.alterarFuncionarioCliente(funcionario);
+    }
 
-		if (clienteCadastrado === null && pessoaEntradaDTO.cliente == true) {
-			const clienteEmpresa = {
-				cdCliente: pessoaEntradaDTO.cdPessoa,
-				cdEmpresa: empresaSelecionada,
-				dtInicio: pessoaEntradaDTO.dtInicio,
-				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuInclusao: dadosToken.cdUsuario,
-				dtHrInclusao: new Date(),
-			};
+    const clienteCadastrado = await this.pessoasRepository.getClienteById(
+      pessoaEntradaDTO.cdPessoa!,
+      empresaSelecionada!
+    );
 
-			await this.pessoasRepository.cadastrarClienteEmpresa(clienteEmpresa);
-		} else if (clienteCadastrado && pessoaEntradaDTO.cliente == true) {
-			const clienteEmpresa = {
-				cdCliente: pessoaEntradaDTO.cdPessoa,
-				cdEmpresa: empresaSelecionada,
-				dtInicio: pessoaEntradaDTO.dtInicio,
-				ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-				usuAlteracao: dadosToken.cdUsuario,
-				dtHrAlteracao: new Date(),
-			};
+    if (clienteCadastrado === null && pessoaEntradaDTO.cliente == true) {
+      const clienteEmpresa = {
+        cdCliente: pessoaEntradaDTO.cdPessoa,
+        cdEmpresa: empresaSelecionada,
+        dtInicio: pessoaEntradaDTO.dtInicio,
+        ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
+        usuInclusao: dadosToken.cdUsuario,
+        dtHrInclusao: new Date(),
+      };
 
-			await this.pessoasRepository.alterarClienteEmpresa(clienteEmpresa);
-		} else if (clienteCadastrado && pessoaEntradaDTO.cliente == false) {
-			const clienteEmpresa = {
-				cdCliente: pessoaEntradaDTO.cdPessoa,
-				cdEmpresa: empresaSelecionada,
-				ativo: 0, // Converte boolean para TINYINT
-				usuAlteracao: dadosToken.cdUsuario,
-				dtHrAlteracao: new Date(),
-			};
+      await this.pessoasRepository.cadastrarClienteEmpresa(clienteEmpresa);
+    } else if (clienteCadastrado && pessoaEntradaDTO.cliente == true) {
+      const clienteEmpresa = {
+        cdCliente: pessoaEntradaDTO.cdPessoa,
+        cdEmpresa: empresaSelecionada,
+        dtInicio: pessoaEntradaDTO.dtInicio,
+        ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
+        usuAlteracao: dadosToken.cdUsuario,
+        dtHrAlteracao: new Date(),
+      };
 
-			await this.pessoasRepository.alterarClienteEmpresa(clienteEmpresa);
-		}
+      await this.pessoasRepository.alterarClienteEmpresa(clienteEmpresa);
+    } else if (clienteCadastrado && pessoaEntradaDTO.cliente == false) {
+      const clienteEmpresa = {
+        cdCliente: pessoaEntradaDTO.cdPessoa,
+        cdEmpresa: empresaSelecionada,
+        ativo: 0, // Converte boolean para TINYINT
+        usuAlteracao: dadosToken.cdUsuario,
+        dtHrAlteracao: new Date(),
+      };
 
-		const pessoaAux = {
-			cdPessoa: pessoaCadastrada.dataValues.cdPessoa,
-			cdEmpresa: empresaSelecionada,
-			nome: pessoaEntradaDTO.nome,
-			dtNasc: pessoaEntradaDTO.dtNasc,
-			rg: pessoaEntradaDTO.rg,
-			email: pessoaEntradaDTO.email,
-			ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
-			cliente: pessoaEntradaDTO.cliente ? 1 : 0, // Converte boolean para TINYINT
-			empresa: pessoaEntradaDTO.empresa ? 1 : 0, // Converte boolean para TINYINT
-			imagem: "",
-			usuAlteracao: dadosToken.cdUsuario,
-			dtHrAlteracao: new Date(),
-		};
-		await this.pessoasRepository.alterarPessoaAux(pessoaAux);
-	}
+      await this.pessoasRepository.alterarClienteEmpresa(clienteEmpresa);
+    }
+
+    const pessoaAux = {
+      cdPessoa: pessoaCadastrada.dataValues.cdPessoa,
+      cdEmpresa: empresaSelecionada,
+      nome: pessoaEntradaDTO.nome,
+      dtNasc: pessoaEntradaDTO.dtNasc,
+      rg: pessoaEntradaDTO.rg,
+      email: pessoaEntradaDTO.email,
+      ativo: pessoaEntradaDTO.ativo ? 1 : 0, // Converte boolean para TINYINT
+      cliente: pessoaEntradaDTO.cliente ? 1 : 0, // Converte boolean para TINYINT
+      empresa: pessoaEntradaDTO.empresa ? 1 : 0, // Converte boolean para TINYINT
+      imagem: "",
+      usuAlteracao: dadosToken.cdUsuario,
+      dtHrAlteracao: new Date(),
+    };
+    await this.pessoasRepository.alterarPessoaAux(pessoaAux);
+  }
 }

@@ -5,6 +5,8 @@ import PessoaAtividade from "./pessoaAtividade";
 import PessoaAux from "./pessoaAux";
 import Projeto from "./projeto";
 import SituacaoProj from "./situacaoProj";
+import Usuario from "./usuario";
+import UsuarioEmpresa from "./usuarioEmpresa";
 
 // Pessoa <-> PessoaAux
 Pessoa.hasOne(PessoaAux, {
@@ -100,4 +102,32 @@ PessoaAux.hasMany(PessoaAtividade, {
   foreignKey: 'cdPessoa',
   sourceKey: 'cdPessoa',
   as: 'atividadesPessoaAux',
+});
+
+// 🔹 Usuário pertence a uma pessoa (1:1)
+Usuario.belongsTo(Pessoa, {
+  foreignKey: "cdPessoa",
+  targetKey: "cdPessoa",
+  as: "pessoa",
+});
+Pessoa.hasOne(Usuario, {
+  foreignKey: "cdPessoa",
+  sourceKey: "cdPessoa",
+  as: "usuario",
+});
+
+// 🔹 Usuário ↔ Empresa (N:N via UsuarioEmpresa)
+// Aqui empresa também é pessoa
+Usuario.belongsToMany(Pessoa, {
+  through: UsuarioEmpresa,
+  foreignKey: "cdUsuario",   // vem da tabela USUARIO_EMPRESA
+  otherKey: "cdEmpresa",     // empresa é um pessoa
+  as: "empresas",
+});
+
+Pessoa.belongsToMany(Usuario, {
+  through: UsuarioEmpresa,
+  foreignKey: "cdEmpresa",   // empresa é pessoa
+  otherKey: "cdUsuario",     // usuário
+  as: "usuarios",
 });

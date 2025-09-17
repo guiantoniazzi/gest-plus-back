@@ -1,5 +1,6 @@
 import Atividade from "./atividade";
 import FuncionarioCliente from "./funcionarioCliente";
+import HistoricoProjeto from "./historico/historicoProjeto";
 import Pessoa from "./pessoa";
 import PessoaAtividade from "./pessoaAtividade";
 import PessoaAux from "./pessoaAux";
@@ -42,6 +43,13 @@ SituacaoProj.hasMany(Projeto, {
   foreignKey: "idSituacaoProj",
   sourceKey: "cdSituacao",
   as: "projetos",
+});
+
+// HistoricoProjeto <-> SituacaoProj
+HistoricoProjeto.belongsTo(SituacaoProj, {
+  foreignKey: "idSituacaoProj",
+  targetKey: "cdSituacao",
+  as: "situacaoProj",
 });
 
 // Projeto <-> Atividade

@@ -1,9 +1,7 @@
-import ClienteEmpresa from "../model/clienteEmpresa";
-import FuncionarioCliente from "../model/funcionarioCliente";
-import Pessoa from "../model/pessoa";
-import PessoaAux from "../model/pessoaAux";
+import HistoricoProjeto from "../model/historico/historicoProjeto";
 import Projeto from "../model/projeto";
 import SituacaoProj from "../model/situacaoProj";
+import { con } from "./connection";
 
 export class ProjetoRepository {
 	constructor() {}
@@ -27,9 +25,32 @@ export class ProjetoRepository {
 		}
 	}
 
+	async getHistorico(cdProj: number) {
+		try {
+			const pessoas = await HistoricoProjeto.findAll({
+				where: { cdProj: cdProj },
+				include: [
+                    {
+                        model: SituacaoProj,
+                        as: "situacaoProj",
+                        attributes: ["descSituacao", "cor"],
+                    },
+                ]
+			});
+			return pessoas;
+		} catch (error) {
+			console.error("Erro ao buscar histórico do projeto:", error);
+			throw error;
+		}
+	}
+
 	async cadastrarProjeto(projeto: any) {
 		try {
 			const result = await Projeto.create(projeto);
+			if (result.dataValues) {
+				projeto.cdProj = result.dataValues.cdProj;
+				this.insertHistorico(projeto);
+			}
 			return result;
 		} catch (error) {
 			console.error("Erro ao cadastrar projeto:", error);
@@ -42,9 +63,22 @@ export class ProjetoRepository {
 			const result = await Projeto.update(projeto, {
 				where: { cdProj: projeto.cdProj },
 			});
+			if (result[0] === 1) {
+				this.insertHistorico(projeto);
+			}
 			return result;
 		} catch (error) {
 			console.error("Erro ao alterar projeto:", error);
+			throw error;
+		}
+	}
+
+	async insertHistorico(projeto: any) {
+		try {
+			const result = await HistoricoProjeto.create(projeto);
+			return result;
+		} catch (error) {
+			console.error("Erro ao inserir histórico do projeto:", error);
 			throw error;
 		}
 	}

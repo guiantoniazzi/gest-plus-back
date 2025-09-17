@@ -1,5 +1,6 @@
 import Atividade from "./atividade";
 import FuncionarioCliente from "./funcionarioCliente";
+import PerfisAcesso from "./perfisAcesso";
 import Pessoa from "./pessoa";
 import PessoaAtividade from "./pessoaAtividade";
 import PessoaAux from "./pessoaAux";
@@ -117,10 +118,10 @@ Pessoa.hasOne(Usuario, {
 });
 
 // 🔹 Usuário ↔ Empresa (N:N via UsuarioEmpresa)
-// Aqui empresa também é pessoa
+// Empresa também é Pessoa
 Usuario.belongsToMany(Pessoa, {
   through: UsuarioEmpresa,
-  foreignKey: "cdUsuario",   // vem da tabela USUARIO_EMPRESA
+  foreignKey: "cdUsuario",   // campo em USUARIO_EMPRESA
   otherKey: "cdEmpresa",     // empresa é um pessoa
   as: "empresas",
 });
@@ -130,4 +131,31 @@ Pessoa.belongsToMany(Usuario, {
   foreignKey: "cdEmpresa",   // empresa é pessoa
   otherKey: "cdUsuario",     // usuário
   as: "usuarios",
+});
+
+// 🔹 UsuarioEmpresa pertence a Usuario e Pessoa (empresa)
+UsuarioEmpresa.belongsTo(Usuario, {
+  foreignKey: "cdUsuario",
+  targetKey: "cdUsuario",
+  as: "usuario",
+});
+
+UsuarioEmpresa.belongsTo(Pessoa, {
+  foreignKey: "cdEmpresa",
+  targetKey: "cdPessoa",
+  as: "empresa", // empresa também é pessoa
+});
+
+// 🔹 UsuarioEmpresa tem Perfil de Acesso
+UsuarioEmpresa.belongsTo(PerfisAcesso, {
+  foreignKey: "cdPerfil",
+  targetKey: "cdPerfil",
+  as: "perfil",
+});
+
+// (Opcional, se precisar do lado do perfil)
+PerfisAcesso.hasMany(UsuarioEmpresa, {
+  foreignKey: "cdPerfil",
+  sourceKey: "cdPerfil",
+  as: "usuariosEmpresa",
 });

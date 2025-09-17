@@ -35,13 +35,12 @@ export class TokenService {
 				decoded !== null &&
 				"permissoesLogin" in decoded
 			) {
-				console.log(decoded)
 				// Obter a lista de funções do token
 				// const listFuncs = decoded.permissoesLogin.cdFuncao
 				// 	.split("|")
 				// 	.map((cdFunc: string) => parseInt(cdFunc, 10));
 
-				if (decoded.permissoesLogin.cdUsuario === "admin" || decoded.permissoesLogin.cdUsuario === "GUI") { //TODO REMOVER
+				if (decoded.permissoesLogin.cdUsuario === "ADM") { 
 					return true; // Admin tem todas as permissões
 				}
 

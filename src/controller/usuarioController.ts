@@ -25,13 +25,6 @@ export default class UsuarioController {
              *   get:
              *     summary: Retorna todos os usuários
              *     tags: [Usuario]
-             *     parameters:
-             *       - in: query
-             *         name: empresaSelecionada
-             *         schema:
-             *           type: integer
-             *         required: true
-             *         description: ID da empresa selecionada
              *     responses:
              *       200:
              *         description: Lista de usuários.
@@ -41,22 +34,104 @@ export default class UsuarioController {
                 async (req: Request, res: Response): Promise<any> => {
                     try {
                         const token = req.headers.cookie?.split("=")[1];
-                        const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
 
                         if (!token) return res.status(401).json({ message: "Token não fornecido" });
-                        if (!empresaSelecionada || isNaN(empresaSelecionada))
-                            return res.status(400).json({ message: "Informe a empresa selecionada" });
 
                         const tokenService = new TokenService();
                         const isValid = await tokenService.validarToken(
                             token,
                             Funcionalidade["Consultar usuário"],
-                            empresaSelecionada
                         );
                         if (!isValid) return res.status(401).json({ message: "Token inválido" });
 
                         const usuarios = await this.usuarioService.getAll();
                         return res.status(200).json(usuarios);
+                    } catch (error) {
+                        return res.status(500).json({ message: "Erro ao buscar usuários" });
+                    }
+                }
+            );
+
+            /**
+             * @swagger
+             * /api/usuario/getAssociacoes:
+             *   get:
+             *     summary: Retorna todas as associações do usuário
+             *     tags: [Usuario]
+             *     responses:
+             *       200:
+             *         description: Lista de associações do usuário.
+             */
+            this.router.get(
+                "/getAssociacoes",
+                async (req: Request, res: Response): Promise<any> => {
+                    try {
+                        const token = req.headers.cookie?.split("=")[1];
+
+                        if (!token) return res.status(401).json({ message: "Token não fornecido" });
+
+                        const tokenService = new TokenService();
+                        const isValid = await tokenService.validarToken(
+                            token,
+                            Funcionalidade["Consultar usuário"],
+                        );
+                        if (!isValid) return res.status(401).json({ message: "Token inválido" });
+
+                        const cdUsuario = req.query.cdUsuario;
+
+                        const associacoes = await this.usuarioService.getAssociacoes(cdUsuario);
+                        return res.status(200).json(associacoes);
+                    } catch (error) {
+                        return res.status(500).json({ message: "Erro ao buscar usuários" });
+                    }
+                }
+            );
+
+            /**
+             * @swagger
+             * /api/usuario/associar:
+             *   post:
+             *     summary: Associa o funcionário
+             *     tags: [Usuario]
+             *     responses:
+             *       200:
+             *         description: Funcionário associado.
+             */
+            this.router.post(
+                "/associar",
+                async (req: Request, res: Response): Promise<any> => {
+                    try {
+                        const token = req.headers.cookie?.split("=")[1];
+
+                        if (!token) return res.status(401).json({ message: "Token não fornecido" });
+
+                        const tokenService = new TokenService();
+                        const isValid = await tokenService.validarToken(
+                            token,
+                            Funcionalidade["Gerenciar usuário"],
+                        );
+                        if (!isValid) return res.status(401).json({ message: "Token inválido" });
+
+                        const dadosToken = await tokenService.descripToken(token);
+                        const { cdUsuario, cdEmpresa, cdPerfil, dtValid, ativo } = req.body;
+
+                        if (!cdUsuario || !cdEmpresa || !cdPerfil)
+                            return res.status(400).json({ message: "Dados inválidos" });
+
+                        const associacao = {
+                            cdUsuario,
+                            cdEmpresa,
+                            cdPerfil,
+                            dtValid,
+                            ativo,
+                            usuInclusao: dadosToken.cdUsuario,
+                            dtHrInclusao: new Date(),
+                            usuAlteracao: dadosToken.cdUsuario,
+                            dtHrAlteracao: new Date(),
+                        };
+
+                        await this.usuarioService.associarUsuario(associacao);
+                        return res.status(200);
                     } catch (error) {
                         return res.status(500).json({ message: "Erro ao buscar usuários" });
                     }
@@ -112,9 +187,9 @@ export default class UsuarioController {
                         if (!isValid) return res.status(401).json({ message: "Token inválido" });
 
                         const dadosToken = await tokenService.descripToken(token);
-                        const { cdUsuario, cdPessoa, senha, ativo, dtValid, idsEmpresas, perfilAcesso } = req.body;
+                        const { cdUsuario, cdPessoa, senha, ativo } = req.body;
 
-                        if (!cdUsuario || !cdPessoa || !senha || ativo === undefined || !idsEmpresas || idsEmpresas.length === 0 || !perfilAcesso)
+                        if (!cdUsuario || !cdPessoa || !senha || ativo === undefined)
                             return res.status(400).json({ message: "Dados inválidos" });
 
                         const usuario = {
@@ -122,17 +197,13 @@ export default class UsuarioController {
                             cdPessoa,
                             senha,
                             ativo: ativo ? 1 : 0,
-                            dtValid: dtValid || null,
                             usuInclusao: dadosToken.cdUsuario,
                             dtHrInclusao: new Date(),
+                            usuAlteracao: dadosToken.cdUsuario,
+                            dtHrAlteracao: new Date(),
                         };
 
                         const novoUsuario = await this.usuarioService.cadastrarUsuario(usuario);
-                        novoUsuario.dataValues.cdPerfil = perfilAcesso;
-                        for (const cdEmpresa of idsEmpresas) {
-                            novoUsuario.dataValues.cdEmpresa = cdEmpresa; // Adiciona o cdEmpresa ao objeto do usuário
-                            await this.usuarioService.cadastrarUsuarioEmpresa(novoUsuario.dataValues);
-                        }
                         return res.status(201).json(novoUsuario);
                     } catch (error) {
                         return res.status(500).json({ message: "Erro ao cadastrar usuário" });
@@ -146,12 +217,6 @@ export default class UsuarioController {
              *   put:
              *     summary: Alterar um usuário
              *     tags: [Usuario]
-             *     parameters:
-             *       - in: query
-             *         name: empresaSelecionada
-             *         schema:
-             *           type: integer
-             *         required: true
              *     requestBody:
              *       required: true
              *       content:
@@ -179,24 +244,20 @@ export default class UsuarioController {
                 async (req: Request, res: Response): Promise<any> => {
                     try {
                         const token = req.headers.cookie?.split("=")[1];
-                        const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
 
                         if (!token) return res.status(401).json({ message: "Token não fornecido" });
-                        if (!empresaSelecionada || isNaN(empresaSelecionada))
-                            return res.status(400).json({ message: "Informe a empresa selecionada" });
-
+                        
                         const tokenService = new TokenService();
                         const isValid = await tokenService.validarToken(
                             token,
                             Funcionalidade["Gerenciar usuário"],
-                            empresaSelecionada
                         );
                         if (!isValid) return res.status(401).json({ message: "Token inválido" });
 
                         const dadosToken = await tokenService.descripToken(token);
-                        const { cdUsuario, cdPessoa, senha, ativo, dtValid } = req.body;
+                        const { cdUsuario, cdPessoa, senha, ativo, dtValid, idsEmpresas, perfilAcesso } = req.body;
 
-                        if (!cdUsuario || !cdPessoa || !senha || ativo === undefined)
+                         if (!cdUsuario || !cdPessoa || !senha || ativo === undefined || !idsEmpresas || idsEmpresas.length === 0 || !perfilAcesso)
                             return res.status(400).json({ message: "Dados inválidos" });
 
                         const usuario = {

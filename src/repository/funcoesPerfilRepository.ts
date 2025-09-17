@@ -48,7 +48,6 @@ export class FuncoesPerfilRepository {
 						cdFuncao: funcsParaRemover,
 					},
 				});
-				console.log(`Funções removidas: ${funcsParaRemover}`);
 			}
 
 			if (funcsParaAdicionar.length > 0) {
@@ -59,7 +58,6 @@ export class FuncoesPerfilRepository {
 				}));
 
 				await FuncoesPerfil.bulkCreate(novasFuncoes);
-				console.log(`Funções adicionadas: ${funcsParaAdicionar}`);
 			}
 		} catch (error) {
 			console.error("Erro ao alterar funções do perfil:", error);

@@ -232,8 +232,6 @@ export default class UsuarioController {
              *                 type: string
              *               ativo:
              *                 type: boolean
-             *               dtValid:
-             *                 type: string
              *                 format: date
              *     responses:
              *       200:
@@ -255,9 +253,10 @@ export default class UsuarioController {
                         if (!isValid) return res.status(401).json({ message: "Token inválido" });
 
                         const dadosToken = await tokenService.descripToken(token);
-                        const { cdUsuario, cdPessoa, senha, ativo, dtValid, idsEmpresas, perfilAcesso } = req.body;
+                        const { cdUsuario, cdPessoa, senha, ativo  } = req.body;
 
-                         if (!cdUsuario || !cdPessoa || !senha || ativo === undefined || !idsEmpresas || idsEmpresas.length === 0 || !perfilAcesso)
+
+                         if (!cdUsuario || !cdPessoa || !senha || ativo === undefined )
                             return res.status(400).json({ message: "Dados inválidos" });
 
                         const usuario = {
@@ -265,13 +264,79 @@ export default class UsuarioController {
                             cdPessoa,
                             senha,
                             ativo: ativo ? 1 : 0,
-                            dtValid: dtValid || null,
                             usuAlteracao: dadosToken.cdUsuario,
                             dtHrAlteracao: new Date(),
                         };
 
                         const usuarioAlterado = await this.usuarioService.alterarUsuario(usuario);
                         return res.status(200).json(usuarioAlterado);
+                    } catch (error) {
+                        return res.status(500).json({ message: "Erro ao alterar usuário" });
+                    }
+                }
+            );
+
+            /**
+             * @swagger
+             * /api/usuario/alterarAssociacao:
+             *   put:
+             *     summary: Alterar uma associação do usuário
+             *     tags: [Usuario]
+             *     requestBody:
+             *       required: true
+             *       content:
+             *         application/json:
+             *           schema:
+             *             type: object
+             *             properties:
+             *               cdUsuario:
+             *                 type: string
+             *               cdEmpresa:
+             *                 type: number
+             *               cdPerfil:
+             *                 type: number
+             *               ativo:
+             *                 type: boolean
+             *               dtValid:
+             *                 type: string
+             *                 format: date
+             *     responses:
+             *       200:
+             *         description: Associação alterada com sucesso.
+             */
+            this.router.put(
+                "/alterarAssociacao",
+                async (req: Request, res: Response): Promise<any> => {
+                    try {
+                        const token = req.headers.cookie?.split("=")[1];
+
+                        if (!token) return res.status(401).json({ message: "Token não fornecido" });
+                        
+                        const tokenService = new TokenService();
+                        const isValid = await tokenService.validarToken(
+                            token,
+                            Funcionalidade["Gerenciar usuário"],
+                        );
+                        if (!isValid) return res.status(401).json({ message: "Token inválido" });
+
+                        const dadosToken = await tokenService.descripToken(token);
+                        const { cdUsuario, cdEmpresa, cdPerfil, ativo, dtValid } = req.body;
+
+                         if (!cdUsuario || !cdEmpresa || !cdPerfil || ativo === undefined)
+                            return res.status(400).json({ message: "Dados inválidos" });
+
+                        const associacao = {
+                            cdUsuario,
+                            cdPerfil,
+                            cdEmpresa,
+                            ativo: ativo ? 1 : 0,
+                            dtValid: dtValid || null,
+                            usuAlteracao: dadosToken.cdUsuario,
+                            dtHrAlteracao: new Date(),
+                        };
+
+                        const assocAlterada = await this.usuarioService.alterarAssociacao(associacao);
+                        return res.status(200).json(assocAlterada);
                     } catch (error) {
                         return res.status(500).json({ message: "Erro ao alterar usuário" });
                     }

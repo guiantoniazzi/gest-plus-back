@@ -36,8 +36,6 @@ export class ProjetoService {
 				usuAlteracao: dadosToken.cdUsuario,
 				dtHrAlteracao: new Date(),
 			};
-			console.log("DAdos Token:", dadosToken);
-			console.log("Cadastrando pessoa:", pessoa);
 			pessoaCadastrada = await this.pessoasRepository.cadastrarPessoa(
 				pessoa
 			);

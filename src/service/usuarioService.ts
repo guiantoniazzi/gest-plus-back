@@ -71,4 +71,12 @@ export class UsuarioService {
         }
     }
 
+    async alterarAssociacao(associacao: any) {
+       try {
+            return await this.usuarioRepository.alterarAssociacao(associacao);
+        } catch (error) {
+            throw error;
+        }
+    }
+
 }

@@ -524,7 +524,6 @@ export default class AtividadesController {
             "/cadastrar",
             async (req: Request, res: Response): Promise<any> => {
                 try {
-                    console.log(req.body)
                     const token = req.headers.cookie?.split("=")[1];
                     const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
 

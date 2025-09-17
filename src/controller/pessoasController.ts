@@ -562,7 +562,6 @@ export default class PessoasController {
               return res.status(401).json({ message: "Token não fornecido" });
             }
 
-            console.log("token:", token);
 
             let tipoPessoaInsercao = [Funcionalidade["Gerenciar pessoa"]];
 

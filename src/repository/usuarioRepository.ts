@@ -120,6 +120,18 @@ export class UsuarioRepository {
     }
   }
 
+  async alterarAssociacao(associacao: any) {
+    try {
+      const assocAlterada = await UsuarioEmpresa.update(associacao, {
+        where: { cdUsuario: associacao.cdUsuario, cdEmpresa: associacao.cdEmpresa },
+      });
+      return assocAlterada;
+    } catch (error) {
+      console.error("Erro ao alterar usuário:", error);
+      throw error;
+    }
+  }
+
   async getBycdPessoa(cdPessoa: number) {
     try {
       return await Usuario.findOne({ where: { cdPessoa: cdPessoa } });

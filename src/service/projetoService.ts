@@ -18,6 +18,15 @@ export class ProjetoService {
         }
     }
 
+    async getHistorico(cdProj: number) {
+        try {
+            const result = await this.projetoRepository.getHistorico(cdProj);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async cadastrarProjeto(
         projetoDTO: ProjetoDTO,
         dadosToken: PermissoesLoginOut,

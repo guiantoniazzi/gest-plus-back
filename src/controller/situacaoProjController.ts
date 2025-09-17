@@ -41,7 +41,8 @@ export default class SituacaoProjController {
                 "/getAll",
                 async (req: Request, res: Response): Promise<any> => {
                     try {
-						const atividade = isBooleanString(req.query.atividade as string);
+						const atividade = req.query.atividade as string === "true";
+
                         const situacoes = await this.situacaoProjService.getAll(atividade);
                         return res.status(200).json(situacoes);
                     } catch (error) {

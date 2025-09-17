@@ -24,11 +24,11 @@ const Usuario = conSequelize.define(
       allowNull: false,
       field: "SENHA",
     },
-    dtValid: {
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-      field: "DT_VALID",
-    },
+    // dtValid: {
+    //   type: DataTypes.DATEONLY,
+    //   allowNull: true,
+    //   field: "DT_VALID",
+    // },
     usuInclusao: {
       type: DataTypes.CHAR(8),
       allowNull: false,

@@ -69,6 +69,59 @@ export default class ProjetoController {
 
             /**
              * @swagger
+             * /api/projeto/getHistorico:
+             *   get:
+             *     summary: Retorna o histórico do projeto
+             *     description: Retorna uma lista do histórico do projeto.
+             *     tags: [Projeto]
+             *     parameters:
+             *       - in: query
+             *         name: empresaSelecionada
+             *         schema:
+             *           type: integer
+             *         required: true
+             *         description: ID da empresa selecionada
+             *       - in: query
+             *         name: cdProj
+             *         schema:
+             *           type: integer
+             *         required: true
+             *         description: Código do projeto
+             *     responses:
+             *       200:
+             *         description: Lista de histórico do projeto.
+             */
+            this.router.get(
+                "/getHistorico",
+                async (req: Request, res: Response): Promise<any> => {
+                    try {
+                        const token = req.headers.cookie?.split("=")[1];
+                        const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+                        const cdProj = parseInt(req.query.cdProj as string);
+
+                        if (!token) {
+                            return res.status(401).json({ message: "Token não fornecido" });
+                        }
+
+                        if (!empresaSelecionada || isNaN(empresaSelecionada)) {
+                            return res.status(400).json({ message: "Informe a empresa selecionada" });
+                        }
+
+                        const tokenService = new TokenService();
+                        const isValid = await tokenService.validarToken(token, Funcionalidade["Consultar projeto"], empresaSelecionada);
+                        if (!isValid) {
+                            return res.status(401).json({ message: "Token inválido" });
+                        }
+                        const projetos = await this.projetoService.getHistorico(cdProj);
+                        return res.status(200).json(projetos);
+                    } catch (error) {
+                        return res.status(500).json({ message: "Erro ao buscar projetos" });
+                    }
+                }
+            );
+
+            /**
+             * @swagger
              * /api/projeto/cadastrar:
              *   post:
              *     summary: Cadastrar um novo projeto

@@ -40,7 +40,7 @@ export class TokenService {
 				// 	.split("|")
 				// 	.map((cdFunc: string) => parseInt(cdFunc, 10));
 
-				if (decoded.permissoesLogin.cdUsuario === "ADM") { 
+				if (decoded.permissoesLogin.cdUsuario === "ADMIN") { 
 					return true; // Admin tem todas as permissões
 				}
 

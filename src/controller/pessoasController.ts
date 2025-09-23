@@ -135,7 +135,7 @@ export default class PessoasController {
        *         description: Lista de Empresas.
        */
       this.router.get(
-        "/getEmpresas",
+        "/getEmpresasAdm",
         async (req: Request, res: Response): Promise<any> => {
           try {
             const token = req.headers.cookie?.split("=")[1];
@@ -432,9 +432,10 @@ export default class PessoasController {
         async (req: Request, res: Response): Promise<any> => {
           try {
             const token = req.headers.cookie?.split("=")[1];
-            const empresaSelecionada = parseInt(
+            let empresaSelecionada = parseInt(
               req.query.empresaSelecionada as string
             );
+
             const pessoa = req.body as PessoaEntradaDTO;
 
             if (!token) {
@@ -471,6 +472,9 @@ export default class PessoasController {
             });
 
             const dadosToken = await tokenService.descripToken(token);
+
+            if (req.body.cdEmpresa) 
+              empresaSelecionada = req.body.cdEmpresa;
 
             await this.pessoasService.cadastrarPessoa(
               pessoa,

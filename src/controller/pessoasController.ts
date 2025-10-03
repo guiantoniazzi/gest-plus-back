@@ -59,7 +59,7 @@ export default class PessoasController {
             }
 
             const tokenService = new TokenService();
-            const isValid = tokenService.validarToken(
+            const isValid = await tokenService.validarToken(
               token,
               Funcionalidade["Consultar pessoa"],
               empresaSelecionada

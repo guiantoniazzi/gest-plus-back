@@ -94,6 +94,8 @@ export class PessoasService {
     dadosToken: PermissoesLoginOut,
     empresaSelecionada: number
   ) {
+    pessoaEntradaDTO.cpfCnpj = pessoaEntradaDTO.cpfCnpj.replace(/\D/g, "");
+
     var pessoaCadastrada = await this.pessoasRepository.getByDoc(
       pessoaEntradaDTO.cpfCnpj
     );
@@ -161,6 +163,8 @@ export class PessoasService {
     dadosToken: PermissoesLoginOut,
     empresaSelecionada: number
   ) {
+    pessoaEntradaDTO.cpfCnpj = pessoaEntradaDTO.cpfCnpj.replace(/\D/g, "");
+
     const pessoaCadastrada = await this.pessoasRepository.getById(
       pessoaEntradaDTO.cdPessoa!
     );

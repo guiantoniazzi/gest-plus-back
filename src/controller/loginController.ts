@@ -69,17 +69,6 @@ export default class LoginController {
           maxAge: 1000 * 60 * 60 * 24
         }).json(permissoesLogin).send();
       });
-
-      this.router.get("/verificarToken", async (req: Request, res: Response): Promise<any> => {
-
-        const token = req.headers.cookie?.split("=")[1];
-
-        if (!token) {
-          return res.status(401).json({ message: "Token não fornecido" });
-        }
-
-        return res.status(200).json(this.tokenService.descripToken(token)).send();
-      });
     }
     catch (error) {
       throw error;

@@ -64,7 +64,8 @@ export class ProjetoRepository {
 				where: { cdProj: projeto.cdProj },
 			});
 			if (result[0] === 1) {
-				this.insertHistorico(projeto);
+				projeto = await Projeto.findOne({ where: { cdProj: projeto.cdProj } });
+				this.insertHistorico(projeto.dataValues);
 			}
 			return result;
 		} catch (error) {

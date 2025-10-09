@@ -69,6 +69,63 @@ export default class ProjetoController {
 
             /**
              * @swagger
+             * /api/projeto/getAllByCdPessoa:
+             *   get:
+             *     summary: Retorna todos os projetos de uma pessoa
+             *     description: Retorna uma lista de todos os projetos de uma pessoa cadastrados no sistema.
+             *     tags: [Projeto]
+             *     parameters:
+             *       - in: query
+             *         name: cdPessoa
+             *         schema:
+             *           type: integer
+             *         required: true
+             *         description: Código da pessoa
+             *       - in: query
+             *         name: empresaSelecionada
+             *         schema:
+             *           type: integer
+             *         required: true
+             *         description: ID da empresa selecionada
+             *     responses:
+             *       200:
+             *         description: Lista de projetos.
+             */
+            this.router.get(
+                "/getAllByCdPessoa",
+                async (req: Request, res: Response): Promise<any> => {
+                    try {
+                        const token = req.headers.cookie?.split("=")[1];
+                        const empresaSelecionada = parseInt(req.query.empresaSelecionada as string);
+                        const cdPessoa = parseInt(req.query.cdPessoa as string);
+
+                        if (!token) {
+                            return res.status(401).json({ message: "Token não fornecido" });
+                        }
+
+                        if (!empresaSelecionada || isNaN(empresaSelecionada)) {
+                            return res.status(400).json({ message: "Informe a empresa selecionada" });
+                        }
+
+                        if (!cdPessoa || isNaN(cdPessoa)) {
+                            return res.status(400).json({ message: "Informe o código da pessoa" });
+                        }
+
+                        const tokenService = new TokenService();
+                        const isValid = await tokenService.validarToken(token, Funcionalidade["Consultar projeto"], empresaSelecionada);
+                        if (!isValid) {
+                            return res.status(401).json({ message: "Token inválido" });
+                        }
+                        const projetos = await this.projetoService.getAllByCdPessoa(cdPessoa, empresaSelecionada);
+                        return res.status(200).json(projetos);
+                    } catch (error) {
+                        return res.status(500).json({ message: "Erro ao buscar projetos" });
+                    }
+                }
+            );
+
+            /**
+             * @swagger
              * /api/projeto/getHistorico:
              *   get:
              *     summary: Retorna o histórico do projeto

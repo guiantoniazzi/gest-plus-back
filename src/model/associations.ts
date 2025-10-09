@@ -57,7 +57,7 @@ HistoricoProjeto.belongsTo(SituacaoProj, {
 Projeto.hasMany(Atividade, {
   foreignKey: "cdProj",
   sourceKey: "cdProj",
-  as: "atividades",
+  as: "atividade",
 });
 Atividade.belongsTo(Projeto, {
   foreignKey: "cdProj",

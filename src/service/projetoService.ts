@@ -18,6 +18,15 @@ export class ProjetoService {
         }
     }
 
+    async getAllByCdPessoa(cdPessoa: number, empresaSelecionada: number) {
+        try {
+            const result = await this.projetoRepository.getProjetosComAtividadesDaPessoa(cdPessoa, empresaSelecionada);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async getHistorico(cdProj: number) {
         try {
             const result = await this.projetoRepository.getHistorico(cdProj);

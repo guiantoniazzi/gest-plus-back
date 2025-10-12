@@ -19,7 +19,7 @@ import UsuarioController from "./src/controller/usuarioController";
 const cors = require("cors");
 const app = express();
 
-app.use(cors({ credentials: true, origin: true }));
+app.use(cors({ credentials: true, origin: 'https://gest-mais.netlify.app' }));
 
 app.use(express.json());
 

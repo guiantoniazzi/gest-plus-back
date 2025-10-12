@@ -2,16 +2,16 @@ import mysql from 'mysql2/promise';
 import { Sequelize } from 'sequelize';
 
 var con = mysql.createPool({
-    host: process.env.HOST || 'localhost',
-    user: process.env.HOST_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'DB_GEST_MAIS',
+    host: 'sql10.freesqldatabase.com',
+    user: 'sql10802289',
+    password: 'DURWxhdtJG',
+    database: 'sql10802289',
 });
 
 const conSequelize = new Sequelize(
-    process.env.DB_NAME || 'DB_GEST_MAIS',
-    process.env.HOST_USER || 'root',
-    process.env.DB_PASSWORD || '', 
-    {dialect: 'mysql', host: process.env.HOST || 'localhost'});
+    'sql10802289',
+    'sql10802289',
+    'DURWxhdtJG', 
+    {dialect: 'mysql', host: 'sql10.freesqldatabase.com'});
 
 export { con, conSequelize };

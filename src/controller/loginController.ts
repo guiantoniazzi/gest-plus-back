@@ -64,8 +64,8 @@ export default class LoginController {
 
         return res.status(200).cookie("token", this.tokenService.gerarToken(permissoesLogin), {
           httpOnly: true,
-          // secure: true,
-          sameSite: 'strict',
+          secure: true,
+          sameSite: 'none',
           maxAge: 1000 * 60 * 60 * 24
         }).json(permissoesLogin).send();
       });

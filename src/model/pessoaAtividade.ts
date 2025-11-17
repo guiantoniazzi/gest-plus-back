@@ -23,11 +23,17 @@ const PessoaAtividade = conSequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       field: "DT_FIM",
+      set(value) {
+        this.setDataValue("dtFim", value === "" ? null : value);
+      }
     },
     qtdHr: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: "QTD_HR",
+      set(value) {
+        this.setDataValue("qtdHr", value === "" ? null : value);
+      }
     },
     usuInclusao: {
       type: DataTypes.CHAR(8),

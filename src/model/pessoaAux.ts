@@ -23,11 +23,17 @@ const PessoaAux = conSequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       field: 'DT_NASC',
+      set(value) {
+        this.setDataValue("dtNasc", value === "" ? null : value);
+      }
     },
     rg: {
       type: DataTypes.CHAR(12),
       allowNull: true,
       field: 'RG',
+      set(value) {
+        this.setDataValue("rg", value === "" ? null : value);
+      }
     },
     email: {
       type: DataTypes.STRING(60),

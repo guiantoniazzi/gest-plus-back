@@ -76,16 +76,25 @@ const HistoricoProjeto = conSequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       field: 'QTD_HR_PROJ',
+      set(value) {
+        this.setDataValue("qtdHrProj", value === "" ? 0 : value);
+      }
     },
     vlrHrProj: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       field: 'VLR_HR_PROJ',
+      set(value) {
+        this.setDataValue("vlrHrProj", value === "" ? 0 : value);
+      }
     },
     vlrBaseProj: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       field: 'VLR_BASE_PROJ',
+      set(value) {
+        this.setDataValue("vlrBaseProj", value === "" ? 0 : value);
+      }
     },
     vlrDescontoComercial: {
       type: DataTypes.DECIMAL(10, 2),
@@ -113,8 +122,11 @@ const HistoricoProjeto = conSequelize.define(
     },
     dtInicioProj: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
       field: 'DT_INICIO_PROJ',
+      set(value) {
+        this.setDataValue("dtInicioProj", value === "" ? null : value);
+      }
     },
     dtFimProj: {
       type: DataTypes.DATE,

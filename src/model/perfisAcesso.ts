@@ -11,6 +11,9 @@ const PerfisAcesso = conSequelize.define(
       primaryKey: true,
       autoIncrement: true,
       field: 'CD_PERFIL',
+      set(value) {
+        this.setDataValue("cdPerfil", value === "" ? 0 : value);
+      }
     },
     nomePerfil: {
       type: DataTypes.STRING(20),

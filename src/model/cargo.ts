@@ -9,6 +9,9 @@ const Cargo = conSequelize.define(
       primaryKey: true,
       autoIncrement: true,
       field: "CD_CARGO",
+      set(value) {
+        this.setDataValue("cdCargo", value === "" ? 0 : value);
+      }
     },
     descCargo: {
       type: DataTypes.STRING(30),

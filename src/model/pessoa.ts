@@ -9,6 +9,9 @@ const Pessoa = conSequelize.define(
       primaryKey: true,
       autoIncrement: true,
       field: 'CD_PESSOA', // Mapeia para a coluna no banco
+      set(value) {
+        this.setDataValue("cdPessoa", value === "" ? 0 : value);
+      }
     },
     tpPessoa: {
       type: DataTypes.CHAR(1),

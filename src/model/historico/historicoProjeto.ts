@@ -55,6 +55,9 @@ const HistoricoProjeto = conSequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       field: 'DT_INICIO_NEGOCIACAO',
+      set(value) {
+        this.setDataValue("dtInicioNegociacao", value === "" ? null : value);
+      }
     },
     dtInicioPrevista: {
       type: DataTypes.DATE,
@@ -65,51 +68,81 @@ const HistoricoProjeto = conSequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       field: 'DT_FIM_PREVISTA',
+      set(value) {
+        this.setDataValue("dtFimPrevista", value === "" ? null : value);
+      }
     },
     qtdHrProj: {
       type: DataTypes.INTEGER,
       allowNull: false,
       field: 'QTD_HR_PROJ',
+      set(value) {
+        this.setDataValue("qtdHrProj", value === "" ? 0 : value);
+      }
     },
     vlrHrProj: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       field: 'VLR_HR_PROJ',
+      set(value) {
+        this.setDataValue("vlrHrProj", value === "" ? 0 : value);
+      }
     },
     vlrBaseProj: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       field: 'VLR_BASE_PROJ',
+      set(value) {
+        this.setDataValue("vlrBaseProj", value === "" ? 0 : value);
+      }
     },
     vlrDescontoComercial: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       field: 'VLR_DESCONTO_COMERCIAL',
+      set(value) {
+        this.setDataValue("vlrDescontoComercial", value === "" ? 0 : value);
+      }
     },
     vlrAcrescimoProjeto: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       field: 'VLR_ACRESCIMO_PROJETO',
+      set(value) {
+        this.setDataValue("vlrAcrescimoProjeto", value === "" ? 0 : value);
+      }
     },
     vlrFinalProjeto: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       field: 'VLR_FINAL_PROJETO',
+      set(value) {
+        this.setDataValue("vlrFinalProjeto", value === "" ? 0 : value);
+      }
     },
     dtInicioProj: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
       field: 'DT_INICIO_PROJ',
+      set(value) {
+        this.setDataValue("dtInicioProj", value === "" ? null : value);
+      }
     },
     dtFimProj: {
       type: DataTypes.DATE,
       allowNull: true,
       field: 'DT_FIM_PROJ',
+      set(value) {
+        this.setDataValue("dtFimProj", value === "" ? null : value);
+      }
     },
     vlrFaturado: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       field: 'VLR_FATURADO',
+      set(value) {
+        this.setDataValue("vlrFaturado", value === "" ? 0 : value);
+      }
     },
     idSituacaoProj: {
       type: DataTypes.INTEGER,

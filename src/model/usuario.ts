@@ -8,6 +8,9 @@ const Usuario = conSequelize.define(
       type: DataTypes.CHAR(8),
       primaryKey: true,
       field: "CD_USUARIO",
+      set(value) {
+        this.setDataValue("cdUsuario", value === "" ? null : value);
+      }
     },
     cdPessoa: {
       type: DataTypes.INTEGER,

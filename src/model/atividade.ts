@@ -9,6 +9,9 @@ const Atividade = conSequelize.define(
       primaryKey: true,
       autoIncrement: true,
       field: "CD_ATIV",
+      set(value) {
+        this.setDataValue("cdAtiv", value === "" ? 0 : value);
+      }
     },
     cdProj: {
       type: DataTypes.INTEGER,
@@ -29,31 +32,49 @@ const Atividade = conSequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       field: "DT_FIM_PREVISTA",
+      set(value) {
+        this.setDataValue("dtFimPrevista", value === "" ? null : value);
+      }
     },
     qtdHrPrevista: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: "QTD_HR_PREVISTA",
+      set(value) {
+        this.setDataValue("qtdHrPrevista", value === "" ? null : value);
+      }
     },
     qtdHr: {
       type: DataTypes.INTEGER,
       allowNull: true,
       field: "QTD_HR",
+      set(value) {
+        this.setDataValue("qtdHr", value === "" ? null : value);
+      }
     },
     vlrAtiv: {
       type: DataTypes.DECIMAL(10,2),
       allowNull: true,
       field: "VLR_ATIV",
+      set(value) {
+        this.setDataValue("vlrAtiv", value === "" ? null : value);
+      }
     },
     dtInicioAtiv: {
       type: DataTypes.DATE,
       allowNull: true,
       field: "DT_INICIO_ATIV",
+      set(value) {
+        this.setDataValue("dtInicioAtiv", value === "" ? null : value);
+      }
     },
     dtFimAtiv: {
       type: DataTypes.DATE,
       allowNull: true,
       field: "DT_FIM_ATIV",
+      set(value) {
+        this.setDataValue("dtFimAtiv", value === "" ? null : value);
+      }
     },
     situacaoAtiv: {
       type: DataTypes.INTEGER,

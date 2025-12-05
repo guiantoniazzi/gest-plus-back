@@ -18,6 +18,9 @@ const UsuarioEmpresa = conSequelize.define(
       type: DataTypes.DATEONLY,
       allowNull: true,
       field: "DT_VALID",
+      set(value) {
+        this.setDataValue("dtValid", value === "" ? null : value);
+      }
     },
     cdPerfil: {
       type: DataTypes.INTEGER,
@@ -49,6 +52,9 @@ const UsuarioEmpresa = conSequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       field: "DT_HR_ALTERACAO",
+      set(value) {
+        this.setDataValue("dtHrAlteracao", value === "" ? null : value);
+      }
     },
   },
   {
